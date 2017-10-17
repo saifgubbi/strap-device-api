@@ -18,8 +18,11 @@ function getData(req, res) {
     if (req.query.locType === 'Plant') {
         locType = ` AND l.type='Plant' AND ih.status not in ('Dispatched','Reached')`;
     }
-    if (req.query.locType === 'Transit') {
-        locType = ` AND l.type IN ('Plant','Warehouse') AND ih.status in ('Dispatched','Reached')`;
+    if (req.query.locType === 'Transit-Wh') {
+        locType = ` AND( l.type = ('Plant') AND ih.status in ('Dispatched')) OR (l.type = ('Warehouse') AND ih.status in ('Dispatched'))`;
+    }
+    if (req.query.locType === 'Transit-Cust') {
+        locType = ` AND l.type IN ('Warehouse') AND ih.status in ('Dispatched','Reached')`;
     }
     if (req.query.locType === 'Warehouse') {
         locType = ` AND l.type='Warehouse' AND ih.status not in ('Dispatched','Reached')`;

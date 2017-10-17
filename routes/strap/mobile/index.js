@@ -12,10 +12,16 @@ router.use('/receive', require('./receive'));
 router.use('/picking', require('./picking'));
 router.use('/invList', require('./invList'));
 router.use('/invHist', require('./invHist'));
-//router.use('/inquiry', require('./inquiry'));
+router.use('/invMap', require('./invMap'));
+router.use('/sched', require('./sched'));
 
+router.use('/parts/partLocType', require('./parts/partLocType'));
+router.use('/parts/status', require('./parts/status'));
+
+
+//router.use('/inquiry', require('./inquiry'));
 router.get('/', function (req, res) {
-    res.send('Welcome to  Shipment Tracking RFID Apis!');
+    res.send('Welcome to  Shipment Tracking Mobile Apis!');
 });
 
 
