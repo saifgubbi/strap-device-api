@@ -1,5 +1,5 @@
 {
-  "name": "strap-portal-api",
+  "name": "strap-device-api",
   "version": "1.0.0",
   "description": "IoT to DB Integration",
   "main": "server.js",
@@ -16,8 +16,9 @@
     "morgan": "^1.8.1",
     "oracledb": "^1.13.1",
     "passport": "^0.3.2",
-    "passport-jwt": "*",
-    "request": "^2.81.0"
+    "passport-jwt": "latest",
+    "request": "^2.81.0",
+    "moment": "^2.14.1"
   },
   "author": "",
   "license": "ISC"

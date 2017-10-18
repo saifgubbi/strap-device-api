@@ -7,7 +7,8 @@ var op = require('../oracleDBOps');
 // Setup work and export for the JWT passport strategy
 module.exports = function (passport) {
     var opts = {};
-    opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    //opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+    opts.jwtFromRequest =ExtractJwt.fromAuthHeaderWithScheme('jwt')
     opts.secretOrKey = config.secret;
     opts.passReqToCallback = true;
 

@@ -19,7 +19,7 @@ router.use('/parts/partLocType', require('./parts/partLocType'));
 router.use('/parts/status', require('./parts/status'));
 
 
-//router.use('/inquiry', require('./inquiry'));
+router.use('/notification', require('./notification'));
 router.get('/', function (req, res) {
     res.send('Welcome to  Shipment Tracking Mobile Apis!');
 });

@@ -10,7 +10,7 @@ router.get('/', function (req, res) {
     getData(req, res);
 });
 
-router.get('/status', function (req, res) {
+router.get('/parts', function (req, res) {
     getParts(req, res);
 });
 
@@ -21,6 +21,17 @@ module.exports = router;
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var partNo = req.query.partNo;
+    var locType = '';
+
+    if (req.query.locType === 'Plant') {
+        locType = ` AND l.type='Plant' AND b.status not in ('Dispatched','Reached')`;
+    }
+    if (req.query.locType === 'Transit') {
+        locType = ` AND l.type IN ('Plant','Warehouse') AND b.status in ('Dispatched','Reached')`;
+    }
+    if (req.query.locType === 'Warehouse') {
+        locType = ` AND l.type='Warehouse' AND b.status not in ('Dispatched','Reached')`;
+    }
     var schArr = [];
      
     var doConnect = function (cb) {
@@ -33,15 +44,19 @@ function getData(req, res) {
     
     function getSchP(conn, cb) {
         console.log("Getting List");
-         let selectStatement = `SELECT part_no as "partNo"
+        let selectStatement = `SELECT part_no as "partNo",loc as "locType"
                                FROM(
-                               select b.part_no
+                               select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
+                                                             WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Wh'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Cust' 
+                                                         end loc
                                  from bins_t b,LOCATIONS_T l 
                                 where b.from_loc=l.loc_id 
-                                  and part_no is not null
+                                  and b.part_no is not null
                                   and b.part_grp like '${partGrp}'
-                                  and b.part_no = '${partNo}'
-                                  ) group by part_no`;
+                                  and b.part_no = '${partNo}' ${locType}
+                                  ) group by loc,part_no`;
         console.log(selectStatement);
 
         let bindVars = [];
@@ -59,15 +74,11 @@ function getData(req, res) {
                 //let objArr = [];
                 result.rows.forEach(function (row) {
                     let obj = {};
-                    obj.partNo=row.partNo;
-                    obj['Plant']=0;
-                    obj['Transit Wh']=0;
-                    obj['Warehouse']=0;
-                    obj['Transit Cust']=0;
+                    obj.partNo = row.partNo;
+                    obj.locType= row.locType;
+                    obj.status={};
                     schArr.push(obj);
                 });
-//                res.writeHead(200, {'Content-Type': 'application/json'});
-//                 res.end(JSON.stringify(schArr));
                 cb(null, conn);
             }
         });
@@ -75,19 +86,19 @@ function getData(req, res) {
     }
         function getSchP1(conn, cb) {
         console.log("Getting List");
-        let selectStatement = `SELECT part_no as "partNo",loc as "locType",sum(part_qty) as "partQty"
+        let selectStatement = `SELECT part_no as "partNo",loc as "locType",status as "status" ,sum(part_qty) as "partQty"
                                FROM(
-                               select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
+                               select b.part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
                                                              WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Wh'
                                                              WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
                                                              WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Cust' 
-                                                         end loc,b.qty part_qty
+                                                         end loc,b.status,b.qty part_qty
                                  from bins_t b,LOCATIONS_T l 
                                 where b.from_loc=l.loc_id 
-                                  and part_no is not null
+                                  and b.part_no is not null
                                   and b.part_grp like '${partGrp}'
-                                  and b.part_no = '${partNo}'
-                                  ) group by loc,part_no`;
+                                  and b.part_no = '${partNo}'${locType}
+                                  ) group by loc,part_no,status`;
         console.log(selectStatement);
 
         let bindVars = [];
@@ -104,9 +115,10 @@ function getData(req, res) {
             } else {
                 result.rows.forEach(function (row) {
                     schArr.forEach(function (sch) {
-                        if (sch.partNo === row.partNo)
+                        if (sch.locType === row.locType)
                         {
-                         sch[row.locType]=row.partQty;   
+                            console.log(row);
+                         sch.status[row.status]=row.partQty;   
                         }
                     });
                                  
@@ -122,8 +134,8 @@ function getData(req, res) {
   
     async.waterfall(
             [doConnect,
-             getSchP
-             ,getSchP1
+             getSchP,
+             getSchP1
             ],
             function (err, conn) {
                 if (err) {
@@ -152,16 +164,18 @@ function getParts(req, res) {
     
     function getSchP(conn, cb) {
         console.log("Getting List");
-        let selectStatement = `SELECT part_no as "partNo",req.query.locType
+        let selectStatement = `SELECT part_no as "partNo",loc as "locType"
                                FROM(
-                               select part_no
-                                 from inv_line_t il,inv_hdr_t ih,LOCATIONS_T l 
-                                where ih.invoice_num=il.invoice_num 
-                                  AND ih.from_loc=l.loc_id 
+                               select b.part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
+                                                             WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Wh'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Cust' 
+                                                         end loc
+                                 from bins_t b,LOCATIONS_T l 
+                                where b.from_loc=l.loc_id 
                                   and part_no is not null
-                                  and ih.part_grp like '${partGrp}'
-                                  and il.part_no = '${partNo}' ${locType}
-                                  ) group by part_no`;
+                                  and b.part_grp like '${partGrp}'
+                                  ) group by part_no,loc`;
         console.log(selectStatement);
 
         let bindVars = [];
@@ -180,10 +194,11 @@ function getParts(req, res) {
                 result.rows.forEach(function (row) {
                     let obj = {};
                     obj.partNo = row.partNo;
-                    obj['Plant']=0;
-                    obj['Transit Wh']=0;
-                    obj['Warehouse']=0;
-                    obj['Transit Cust']=0;
+                    //obj[row.locType]=0;
+                    obj.Plant= 0;
+                    obj.TransitWh=0;
+                    obj.Warehouse=0;
+                    obj.TransitCust=0;
                     schArr.push(obj);
                 });
                 cb(null, conn);
@@ -195,17 +210,15 @@ function getParts(req, res) {
         console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo",loc as "loc",sum(part_qty) as "partQty"
                                FROM(
-                               select part_no,case  WHEN l.TYPE='Plant' AND ih.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
-                                                             WHEN l.TYPE='Plant' AND ih.STATUS IN ('Dispatched','Reached') Then 'Transit Wh'
-                                                             WHEN l.TYPE='Warehouse' AND ih.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
-                                                             WHEN l.TYPE='Warehouse' AND ih.STATUS IN ('Dispatched','Reached') Then 'Transit Cust' 
-                                                         end loc,il.qty part_qty
-                                 from inv_line_t il,inv_hdr_t ih,LOCATIONS_T l 
-                                where ih.invoice_num=il.invoice_num 
-                                  AND ih.from_loc=l.loc_id 
+                               select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
+                                                             WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'TransitWh'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'TransitCust' 
+                                                         end loc,b.qty part_qty
+                                 from bins_t b,LOCATIONS_T l 
+                                where b.from_loc=l.loc_id 
                                   and part_no is not null
-                                  and ih.part_grp like '${partGrp}'
-                                  and il.part_no = '${partNo}'
+                                  and b.part_grp like '${partGrp}'
                                   ) group by loc,part_no`;
         console.log(selectStatement);
 
