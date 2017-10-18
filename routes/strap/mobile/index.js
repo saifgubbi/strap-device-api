@@ -17,6 +17,7 @@ router.use('/sched', require('./sched'));
 
 router.use('/parts/partLocType', require('./parts/partLocType'));
 router.use('/parts/status', require('./parts/status'));
+router.use('/parts/stock', require('./parts/stock'));
 
 
 router.use('/notification', require('./notification'));

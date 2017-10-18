@@ -10,9 +10,7 @@ router.get('/data', function (req, res) {
     getData(req, res);
 });
 
-router.get('/parts', function (req, res) {
-    getParts(req, res);
-});
+
 
 
 
