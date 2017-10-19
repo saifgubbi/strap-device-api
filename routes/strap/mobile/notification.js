@@ -16,12 +16,14 @@ module.exports = router;
 
 function getNotify(req, res) {
     
-    var sqlStatement = ` select notification_id,notification_type,notification_name,notification_date,location,message from notifications_t
-                          where notification_date between sysdate-3 and sysdate`;
+    var sqlStatement = ` select event_id as "eventId",event_type as "eventType",event_name as "eventName",event_date as "eventDt",
+                                loc_id as "locId",message as "message" from notifications_t
+                          where event_date between sysdate-3 and sysdate`;
     var bindVars = [];
     console.log(sqlStatement);
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
+
 
 //function getNotify(req, res) {
 //

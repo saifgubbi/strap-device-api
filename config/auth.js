@@ -8,7 +8,7 @@ var op = require('../oracleDBOps');
 module.exports = function (passport) {
     var opts = {};
     //opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
-    opts.jwtFromRequest =ExtractJwt.fromAuthHeaderWithScheme('jwt')
+    opts.jwtFromRequest =ExtractJwt.fromAuthHeaderWithScheme('jwt');
     opts.secretOrKey = config.secret;
     opts.passReqToCallback = true;
 

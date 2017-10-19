@@ -60,10 +60,10 @@ function getData(req, res) {
                 result.rows.forEach(function (row) {
                     let obj = {};
                     obj.partNo=row.partNo;
-                    obj['Plant']=0;
-                    obj['Transit Wh']=0;
-                    obj['Warehouse']=0;
-                    obj['Transit Cust']=0;
+                    obj.plant=0;
+                    obj.transitWh=0;
+                    obj.warehouse=0;
+                    obj.transitCust=0;
                     schArr.push(obj);
                 });
 //                res.writeHead(200, {'Content-Type': 'application/json'});
@@ -77,10 +77,10 @@ function getData(req, res) {
         console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo",loc as "locType",sum(part_qty) as "partQty"
                                FROM(
-                               select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
-                                                             WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Wh'
-                                                             WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
-                                                             WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'Transit Cust' 
+                               select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'plant'
+                                                             WHEN l.TYPE='Plant' AND b.STATUS IN ('Dispatched','Reached') Then 'transitWh'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'warehouse'
+                                                             WHEN l.TYPE='Warehouse' AND b.STATUS IN ('Dispatched','Reached') Then 'transitCust' 
                                                          end loc,b.qty part_qty
                                  from bins_t b,LOCATIONS_T l 
                                 where b.from_loc=l.loc_id 

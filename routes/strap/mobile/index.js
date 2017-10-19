@@ -19,6 +19,8 @@ router.use('/parts/partLocType', require('./parts/partLocType'));
 router.use('/parts/status', require('./parts/status'));
 router.use('/parts/stock', require('./parts/stock'));
 
+router.use('/home/bins', require('./home/bins'));
+router.use('/home/parts', require('./home/parts'));
 
 router.use('/notification', require('./notification'));
 router.get('/', function (req, res) {
