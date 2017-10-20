@@ -43,8 +43,8 @@ function getData(req, res) {
     function getBins(conn, cb) {
         console.log("Getting Header");
 
-        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.STATUS NOT IN ('Dispatched','Reached') Then 'plant'
-                                             WHEN l.TYPE='Warehouse' AND a.STATUS NOT IN ('Dispatched','Reached') Then 'warehouse'
+        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.qty =0 Then 'plant'
+                                             WHEN l.TYPE='Warehouse' AND a.qty=0 Then 'warehouse'
                                          end FROM_LOC,
                                        COUNT(*) AS "count" 
                                   FROM BINS_T A ,
@@ -53,7 +53,7 @@ function getData(req, res) {
                                    AND OWNER='${owner}'
                                    AND status='Ready'
                                    AND qty=0
-                                GROUP BY l.TYPE,A.STATUS,A.FROM_LOC`;
+                                GROUP BY l.TYPE,A.STATUS,A.qty`;
   
         console.log(selectStatement);
 
@@ -86,8 +86,8 @@ function getData(req, res) {
     function getPallets(conn, cb) {
         console.log("Getting Header");
 
-        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.STATUS NOT IN ('Dispatched','Reached') Then 'plant'
-                                             WHEN l.TYPE='Warehouse' AND a.STATUS NOT IN ('Dispatched','Reached') Then 'warehouse'
+        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.qty=0 Then 'plant'
+                                             WHEN l.TYPE='Warehouse' AND a.qty=0 Then 'warehouse'
                                          end FROM_LOC,
                                        COUNT(*) AS "count" 
                                   FROM PALLETS_T A ,
@@ -96,7 +96,7 @@ function getData(req, res) {
                                    AND OWNER='${owner}'
                                    AND status='Ready'
                                    AND qty=0
-                                GROUP BY l.TYPE,A.STATUS,A.FROM_LOC`;
+                                GROUP BY l.TYPE,A.STATUS,A.qty`;
   
         console.log(selectStatement);
 
