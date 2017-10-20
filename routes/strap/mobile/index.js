@@ -22,6 +22,8 @@ router.use('/parts/stock', require('./parts/stock'));
 router.use('/home/bins', require('./home/bins'));
 router.use('/home/parts', require('./home/parts'));
 router.use('/home/invoices', require('./home/invoices'));
+router.use('/home/sched', require('./home/sched'));
+
 
 router.use('/notification', require('./notification'));
 router.get('/', function (req, res) {

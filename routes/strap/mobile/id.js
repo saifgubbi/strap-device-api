@@ -58,7 +58,7 @@ function idInfo(req, res) {
                             idDet.id = row.BIN_ID || row.PALLET_ID;
                             idDet.status = row.STATUS;
                             idDet.partNo = row.PART_NO;
-                            idDet.fromLoc = row.fromLoc;
+                            idDet.fromLoc = row.FROM_LOC;
                             idDet.qty = row.QTY||0;
                             idDet.type = type;
                         });
