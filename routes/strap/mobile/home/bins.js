@@ -29,7 +29,7 @@ function getData(req, res) {
     var owner = req.query.owner;
     //var role = req.query.role;
     //var bins = {binsSeries: [], binsGroups: [], binLocCount: []};
-    var binArr = {bins:{},pallets:{}};
+    var binArr = {bins:[],pallets:[]};
 
 
     var doConnect = function (cb) {
@@ -43,17 +43,19 @@ function getData(req, res) {
     function getBins(conn, cb) {
         console.log("Getting Header");
 
-        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.qty =0 Then 'plant'
-                                             WHEN l.TYPE='Warehouse' AND a.qty=0 Then 'warehouse'
-                                         end FROM_LOC,
-                                       COUNT(*) AS "count" 
-                                  FROM BINS_T A ,
-                                       LOCATIONS_T l
-                                WHERE A.FROM_LOC=l.LOC_ID 
-                                   AND OWNER='${owner}'
-                                   AND status='Ready'
-                                   AND qty=0
-                                GROUP BY l.TYPE,A.STATUS,A.qty`;
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",(select count(1) from BINS_T where OWNER='${owner}') as "total"
+                                          FROM(
+                                            SELECT case  WHEN l.TYPE='Plant' Then 'plant'
+                                                         WHEN l.TYPE='Warehouse' Then 'warehouse'        
+                                                         WHEN l.TYPE='Customer' Then 'customer'
+                                                    end as loc_Type,
+                                                    DECODE(a.qty,0,COUNT(*),0) free_Count
+                                               FROM BINS_T A ,
+                                                    LOCATIONS_T l
+                                              WHERE A.FROM_LOC=l.LOC_ID 
+                                                AND OWNER='${owner}'
+                                           GROUP BY l.TYPE,a.qty
+                                             )group by loc_Type`;
   
         console.log(selectStatement);
 
@@ -71,7 +73,11 @@ function getData(req, res) {
             } else {             
                     result.rows.forEach(function (row) {
                     console.log(row); 
-                    binArr.bins[row.FROM_LOC]=row.count;
+                    let obj={};
+                     obj.locType=row.locType;
+                     obj.freeCount=row.freeCount||0;
+                     obj.total=row.total||0;
+                     binArr.bins.push(obj);
                 });
                  console.log(binArr); 
 //                res.writeHead(200, {'Content-Type': 'application/json'});
@@ -86,17 +92,19 @@ function getData(req, res) {
     function getPallets(conn, cb) {
         console.log("Getting Header");
 
-        let selectStatement = ` SELECT case  WHEN l.TYPE='Plant' AND a.qty=0 Then 'plant'
-                                             WHEN l.TYPE='Warehouse' AND a.qty=0 Then 'warehouse'
-                                         end FROM_LOC,
-                                       COUNT(*) AS "count" 
-                                  FROM PALLETS_T A ,
-                                       LOCATIONS_T l
-                                WHERE A.FROM_LOC=l.LOC_ID 
-                                   AND OWNER='${owner}'
-                                   AND status='Ready'
-                                   AND qty=0
-                                GROUP BY l.TYPE,A.STATUS,A.qty`;
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",( select count(1) from PALLETS_T where OWNER='${owner}' ) as "total"
+                                          FROM(
+                                            SELECT case  WHEN l.TYPE='Plant' Then 'plant'
+                                                         WHEN l.TYPE='Warehouse' Then 'warehouse'        
+                                                         WHEN l.TYPE='Customer' Then 'customer'
+                                                    end as loc_Type,
+                                                    DECODE(a.qty,0,COUNT(*),0) free_Count                                                    
+                                               FROM PALLETS_T A ,
+                                                    LOCATIONS_T l
+                                              WHERE A.FROM_LOC=l.LOC_ID 
+                                                AND OWNER='${owner}'
+                                           GROUP BY l.TYPE,a.qty
+                                             )group by loc_Type`;
   
         console.log(selectStatement);
 
@@ -113,8 +121,11 @@ function getData(req, res) {
                 cb(err, conn);
             } else {             
                     result.rows.forEach(function (row) {
-                    console.log(row);                    
-                    binArr.pallets[row.FROM_LOC]=row.count;
+                    let obj={};
+                     obj.locType=row.locType;
+                     obj.freeCount=row.freeCount||0;
+                     obj.total=row.total||0;
+                     binArr.pallets.push(obj);
                 });
 
                 res.writeHead(200, {'Content-Type': 'application/json'});
