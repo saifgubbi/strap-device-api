@@ -44,14 +44,16 @@ function getDipatchLR(req, res) {
                 cb(err, conn);
             } else {
                 if (result.rows.length === 0) {
-                    res.writeHead(200, {'Content-Type': 'application/json'});
-                    res.end(JSON.stringify([]));
+                    //res.writeHead(200, {'Content-Type': 'application/json'});
+                    //res.end(JSON.stringify([]));
+                    //res.end(JSON.stringify([]).replace(null, '"NULL"'));
+                    res.status(200).send([]);
                     cb(null, conn);
                 } else {
                     let lrArr = [];
                     result.rows.forEach(function (row) {
                         let lrObj = {};
-                        lrObj.lr = row.LR_NO;
+                        lrObj.lr = row.LR_NO||0;
                         lrObj.invCount = row.INV_COUNT||0;
                         lrArr.push(lrObj);
                     });
@@ -107,15 +109,17 @@ function getReceiveLR(req, res) {
             if (err) {
                 cb(err, conn);
             } else {
+                
                 if (result.rows.length === 0) {
-                    res.writeHead(200, {'Content-Type': 'application/json'});
-                    res.end(JSON.stringify([]));
+//                    res.writeHead(200, {'Content-Type': 'application/json'});
+//                    res.end(JSON.stringify([]).replace(null, '"NULL"'));
+                    res.status(200).send([]);
                     cb(null, conn);
                 } else {
                     let lrArr = [];
                     result.rows.forEach(function (row) {
                         let lrObj = {};
-                        lrObj.lr = row.LR_NO;
+                        lrObj.lr = row.LR_NO||0;
                         lrObj.invCount = row.INV_COUNT||0;
                         lrArr.push(lrObj);
                     });

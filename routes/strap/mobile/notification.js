@@ -24,7 +24,6 @@ function getNotify(req, res) {
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
 
-
 //function getNotify(req, res) {
 //
 //    var userId = req.query.userId;

@@ -66,8 +66,6 @@ function getData(req, res) {
                     obj.transitCust=0;
                     schArr.push(obj);
                 });
-//                res.writeHead(200, {'Content-Type': 'application/json'});
-//                 res.end(JSON.stringify(schArr));
                 cb(null, conn);
             }
         });
