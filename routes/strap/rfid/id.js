@@ -53,9 +53,9 @@ function idInfo(req, res) {
                     cb(err, conn);
                 } else {
                     if (result.rows.length === 0) {
-                       // cb({'err': 'ID not found in ' + table}, conn);
+                        // cb({'err': 'ID not found in ' + table}, conn);
                         res.status(401).send({'err': 'ID not found in ' + table});//Added for response set
-                         cb(null, conn);
+                        cb(null, conn);
                     } else {
                         let idDet = {};
                         result.rows.forEach(function (row) {
@@ -63,7 +63,7 @@ function idInfo(req, res) {
                             idDet.status = row.STATUS;
                             idDet.partNo = row.PART_NO;
                             idDet.fromLoc = row.fromLoc;
-                            idDet.qty = row.QTY||0;
+                            idDet.qty = row.QTY || 0;
                             idDet.type = type;
                         });
                         res.writeHead(200, {'Content-Type': 'application/json'});
@@ -85,9 +85,15 @@ function idInfo(req, res) {
                     console.error("In waterfall error cb: ==>", err, "<==");
                     res.writeHead(400, {'Content-Type': 'application/json'});
                     res.end(JSON.stringify(err));
+                    if (conn)
+                    {
+                        dorelease(conn);
+                    }
                 }
                 if (conn)
+                {
                     dorelease(conn);
+                }
             });
 
 }
