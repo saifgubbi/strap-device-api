@@ -72,7 +72,6 @@ function loginUser(req, res) {
                 if (!isMatch)
                 {
                     res.status(401).send({'err': 'Incorrect Password'});//Added for response set
-
                     cb(null, conn);
                 }
                 if (isMatch)
@@ -102,11 +101,11 @@ function loginUser(req, res) {
             var token = 'JWT ' + jwt.sign({username: userDB.USER_ID}, 'somesecretforjswt', {expiresIn: 10080});
             user.token = token;
             res.writeHead(200, {'Content-Type': 'application/json'});
-            // res.end(JSON.stringify(user)); 
-            // res.json(user);
             res.end(JSON.stringify(user).replace(null, '"NULL"'));
-        } else
             cb(null, conn);
+        } else {
+            cb(null, conn);
+        }
     }//Added for response set
 
     async.waterfall(
@@ -122,12 +121,13 @@ function loginUser(req, res) {
                     if (conn)
                     {
                         conn.close();
-                        console.log('Connection Closed');
+
                     }
                 }
                 console.log("Done Waterfall");
                 if (conn)
                 {
+                    console.log('Connection Closed');
                     conn.close();
                 }
             });

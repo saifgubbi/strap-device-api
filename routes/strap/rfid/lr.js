@@ -33,8 +33,7 @@ function getDipatchLR(req, res) {
         let locId = req.query.locId;
 
         let sqlStatement = `SELECT LR_NO,COUNT(*) INV_COUNT FROM INV_HDR_T WHERE STATUS='LR Assigned' AND PART_GRP='${partGrp}' AND FROM_LOC='${locId}' AND LR_NO IS NOT NULL GROUP BY LR_NO `;
-        console.log(sqlStatement);
-
+        
         conn.execute(sqlStatement
                 , [], {
             outFormat: oracledb.OBJECT
@@ -44,9 +43,7 @@ function getDipatchLR(req, res) {
                 cb(err, conn);
             } else {
                 if (result.rows.length === 0) {
-                    //res.writeHead(200, {'Content-Type': 'application/json'});
-                    //res.end(JSON.stringify([]));
-                    //res.end(JSON.stringify([]).replace(null, '"NULL"'));
+                    
                     res.status(200).send([]);
                     cb(null, conn);
                 } else {
@@ -99,8 +96,7 @@ function getReceiveLR(req, res) {
         let locId = req.query.locId;
 
         let sqlStatement = `SELECT LR_NO,COUNT(*) INV_COUNT FROM INV_HDR_T WHERE STATUS='Reached' AND PART_GRP='${partGrp}' AND TO_LOC='${locId}' AND LR_NO IS NOT NULL GROUP BY LR_NO `;
-        console.log(sqlStatement);
-
+        
         conn.execute(sqlStatement
                 , [], {
             outFormat: oracledb.OBJECT
@@ -111,8 +107,6 @@ function getReceiveLR(req, res) {
             } else {
                 
                 if (result.rows.length === 0) {
-//                    res.writeHead(200, {'Content-Type': 'application/json'});
-//                    res.end(JSON.stringify([]).replace(null, '"NULL"'));
                     res.status(200).send([]);
                     cb(null, conn);
                 } else {
@@ -162,12 +156,9 @@ function getLRDetails(req, res) {
 
     var doSelect = function (conn, cb) {
         let partGrp = req.query.partGrp;
-        //  let locId = req.query.locId;
         let lr = req.query.lr;
 
         var sqlStatement = `(SELECT A.BIN_ID AS OBJ_ID,A.QTY,A.PART_NO,'Bin' as OBJ_TYPE,B.INVOICE_NUM FROM BINS_T A,INV_HDR_T B WHERE A.INVOICE_NUM=B.INVOICE_NUM AND A.PART_GRP=B.PART_GRP AND B.LR_NO='${lr}' AND B.PART_GRP = '${partGrp}' AND PALLET_ID is NULL) UNION (SELECT A.PALLET_ID AS OBJ_ID,A.QTY,A.PART_NO,'Pallet' as OBJ_TYPE,B.INVOICE_NUM FROM PALLETS_T A,INV_HDR_T B WHERE A.INVOICE_NUM=B.INVOICE_NUM AND A.PART_GRP=B.PART_GRP AND B.LR_NO='${lr}' AND B.PART_GRP = '${partGrp}')`;
-
-        console.log(sqlStatement);
 
         conn.execute(sqlStatement
                 , [], {
@@ -178,7 +169,6 @@ function getLRDetails(req, res) {
                 cb(err, conn);
             } else {
                 if (result.rows.length === 0) {
-                    //cb({err: 'No Bins/Pallets found for this LR'}, conn);
                     res.status(401).send({err: 'No Bins/Pallets found for this LR'});//Added for response set
                     cb(null, conn);
                 } else {

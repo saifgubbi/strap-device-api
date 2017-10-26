@@ -18,7 +18,9 @@ module.exports = (function () {
             {
                 user: process.env.DBAAS_USER_NAME || "strap",
                 password: process.env.DBAAS_USER_PASSWORD || "strap",
+                //password: process.env.DBAAS_USER_PASSWORD || "Passw0rd_789",
                 connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "10.170.9.82/xe",
+                //connectString: process.env.DBAAS_DEFAULT_CONNECT_DESCRIPTOR || "strap.c27rvxvvwmxs.ap-south-1.rds.amazonaws.com/strap",
                 alias: 'strap'
             }],
         secret: secret,

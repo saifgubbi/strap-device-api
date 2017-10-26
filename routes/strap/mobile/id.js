@@ -40,8 +40,7 @@ function idInfo(req, res) {
         } else {
 
             let sqlStatement = `SELECT * FROM ${table} WHERE ${idLabel}='${req.query.id}'`;
-            console.log(sqlStatement);
-
+            
             conn.execute(sqlStatement
                     , [], {
                 outFormat: oracledb.OBJECT
@@ -59,7 +58,7 @@ function idInfo(req, res) {
                             idDet.status = row.STATUS;
                             idDet.partNo = row.PART_NO;
                             idDet.fromLoc = row.FROM_LOC;
-                            idDet.qty = row.QTY||0;
+                            idDet.qty = row.QTY || 0;
                             idDet.type = type;
                         });
                         res.writeHead(200, {'Content-Type': 'application/json'});
@@ -81,9 +80,15 @@ function idInfo(req, res) {
                     console.error("In waterfall error cb: ==>", err, "<==");
                     res.writeHead(500, {'Content-Type': 'application/json'});
                     res.end(JSON.stringify(err));
+                    if (conn)
+                    {
+                        dorelease(conn);
+                    }
                 }
                 if (conn)
+                {
                     dorelease(conn);
+                }
             });
 
 }

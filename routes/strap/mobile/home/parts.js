@@ -27,7 +27,6 @@ function getParts(req, res) {
     };
 
     function getHdr(conn, cb) {
-        console.log("Getting Header");
 
         let selectStatement = `SELECT count(1) as "parts",loc as "locType",sum(part_qty) as "qty"
                                FROM(
@@ -43,8 +42,6 @@ function getParts(req, res) {
                                   and ih.part_grp like '${partGrp}'
                                   ) group by loc`;
   
-        console.log(selectStatement);
-
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -63,12 +60,10 @@ function getParts(req, res) {
                     obj.locType=row.locType;
                     obj.qty=row.qty;
                     partArr.push(obj);
-                });
-                 //console.log(partArr); 
+                }); 
                 res.writeHead(200, {'Content-Type': 'application/json'});
                res.end(JSON.stringify(partArr));
                 cb(null, conn);
-
             }
 
         });

@@ -29,7 +29,6 @@ function getInvHist(req, res) {
     };
 
      function getEvents(conn, cb) {
-        console.log("Getting List");
 
         let selectStatement = `SELECT EVENT_ID,EVENT_NAME,EVENT_DATE,FROM_LOC,TO_LOC,COMMENTS 
                                  FROM EVENTS_T A
@@ -37,7 +36,6 @@ function getInvHist(req, res) {
                                   AND EVENT_ID='${invId}'
                                   AND PART_GRP='${partGrp}'
                              ORDER BY EVENT_TS DESC`;
-        console.log(selectStatement);
 
         let bindVars = [];
 

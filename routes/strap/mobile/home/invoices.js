@@ -38,7 +38,6 @@ function getInvoice(req, res) {
     };
     
     function getPlant(conn, cb) {
-        console.log("Getting Header");
 
         let selectStatement = `SELECT 'Plant' as "type", COUNT(invoice) as "invoice" ,count(part_no) as "partNo",sum(qty) as "qty"
                                FROM(
@@ -52,7 +51,6 @@ function getInvoice(req, res) {
                                    AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
   
-        console.log(selectStatement);
 
         let bindVars = [];
 
@@ -81,7 +79,6 @@ function getInvoice(req, res) {
 
     }
     function getWarehouse(conn, cb) {
-        console.log("Getting Header");
 
         let selectStatement = ` SELECT 'Warehouse' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",sum(qty) as "qty"
                                FROM(
@@ -95,8 +92,6 @@ function getInvoice(req, res) {
                                   AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
   
-        console.log(selectStatement);
-
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -123,7 +118,6 @@ function getInvoice(req, res) {
 
     }
     function getTransit(conn, cb) {
-        console.log("Getting Header");
 
         let selectStatement = `SELECT 'Transit' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",sum(qty) as "qty"
                                FROM(
@@ -137,8 +131,6 @@ function getInvoice(req, res) {
                                   AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
   
-        console.log(selectStatement);
-
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -188,7 +180,6 @@ function getInvoice(req, res) {
 function getPlant(req, res) {
 
     var partGrp = req.query.partGrp;
-    //console
     var sqlStatement = `SELECT COUNT(invoice) ,count(part_no),sum(qty) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
@@ -201,13 +192,11 @@ function getPlant(req, res) {
                                 AND ih.part_grp='${partGrp}'
                                 GROUP BY part_no)`;
     var bindVars = [];
-    console.log(sqlStatement);
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
 function getTransit(req, res) {
 
     var partGrp = req.query.partGrp;
-    //console
     var sqlStatement = `SELECT COUNT(invoice),count(part_no),sum(qty) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
@@ -220,13 +209,11 @@ function getTransit(req, res) {
                                 AND ih.part_grp='${partGrp}'
                                 GROUP BY part_no)`;
     var bindVars = [];
-    console.log(sqlStatement);
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
 function getWarehouse(req, res) {
 
     var partGrp = req.query.partGrp;
-    //console
     var sqlStatement = `SELECT COUNT(invoice),count(part_no),sum(qty) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
@@ -239,7 +226,6 @@ function getWarehouse(req, res) {
                                 AND ih.part_grp='${partGrp}'
                                 GROUP BY part_no)`;
     var bindVars = [];
-    console.log(sqlStatement);
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
 

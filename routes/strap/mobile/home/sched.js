@@ -23,7 +23,6 @@ function getData(req, res) {
                                               and trunc(sched_dt)=trunc(sysdate) 
                                               and part_no is not null`;
 
-    console.log(selectStatement);
 
     var bindVars = [];
     op.singleSQL(selectStatement, bindVars, req, res);

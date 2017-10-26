@@ -35,8 +35,6 @@ function serialInfo(req, res) {
 
         var sqlStatement = `SELECT NVL(SERIALIZED,'N') SERIALIZED FROM PARTS_T P WHERE P.PART_NO='${partNo}'`;
 
-        console.log(sqlStatement);
-
         conn.execute(sqlStatement
                 , [], {
             outFormat: oracledb.OBJECT
@@ -46,7 +44,6 @@ function serialInfo(req, res) {
                 cb(err, conn);
             } else {
                 if (result.rows.length === 0) {
-                    //cb({err: 'No Active Data found for this Part No'}, conn);
                     res.status(401).send({err: 'No Active Data found for this Part No'});//Added for response set
                     cb(null, conn);
                 } else {
@@ -115,11 +112,9 @@ function insertEvents(req, res, sqlStatement, bindArr) {
     };
 
     function doInsert(conn, cb) {
-        console.log("In  doInsert");
         let arrayCount = 1;
         async.eachSeries(bindArr, function (data, callback) {
             arrayCount++;
-            console.log("Inserting :", JSON.stringify(data));
             let insertStatement = sqlStatement;
             let bindVars = data;
             conn.execute(insertStatement
@@ -212,11 +207,9 @@ function insertEventsSer(req, res, sqlStatement, bindArr) {
     };
 
     function doInsert(conn, cb) {
-        console.log("In  doInsert");
         let arrayCount = 1;
         async.eachSeries(bindArr, function (data, callback) {
             arrayCount++;
-            console.log("Inserting :", JSON.stringify(data));
             let insertStatement = sqlStatement;
             let bindVars = data;
             //  console.log(bindVars.join());

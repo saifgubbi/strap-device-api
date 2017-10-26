@@ -15,9 +15,9 @@ module.exports = router;
 function getParts(req, res) {
     var partGrp = req.query.partGrp;
     var partNo = req.query.partNo;
-    
+
     var schArr = [];
-     
+
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
@@ -25,9 +25,8 @@ function getParts(req, res) {
             cb(null, conn);
         });
     };
-    
+
     function getSchP(conn, cb) {
-        console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo"
                                FROM(
                                select b.part_no
@@ -36,7 +35,6 @@ function getParts(req, res) {
                                   and part_no is not null
                                   and b.part_grp like '${partGrp}'
                                   ) group by part_no`;
-        console.log(selectStatement);
 
         let bindVars = [];
 
@@ -50,15 +48,13 @@ function getParts(req, res) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
             } else {
-                //let objArr = [];
                 result.rows.forEach(function (row) {
                     let obj = {};
                     obj.partNo = row.partNo;
-                    //obj[row.locType]=0;
-                    obj.plant=0;
-                    obj.transitWh=0;
-                    obj.warehouse=0;
-                    obj.transitCust=0;
+                    obj.plant = 0;
+                    obj.transitWh = 0;
+                    obj.warehouse = 0;
+                    obj.transitCust = 0;
                     schArr.push(obj);
                 });
                 cb(null, conn);
@@ -66,8 +62,7 @@ function getParts(req, res) {
         });
 
     }
-        function getSchP1(conn, cb) {
-        console.log("Getting List");
+    function getSchP1(conn, cb) {
         let selectStatement = `SELECT part_no as "partNo",loc as "loc",sum(part_qty) as "partQty"
                                FROM(
                                select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'plant'
@@ -80,7 +75,6 @@ function getParts(req, res) {
                                   and part_no is not null
                                   and b.part_grp like '${partGrp}'
                                   ) group by loc,part_no`;
-        console.log(selectStatement);
 
         let bindVars = [];
 
@@ -98,24 +92,22 @@ function getParts(req, res) {
                     schArr.forEach(function (sch) {
                         if (sch.partNo === row.partNo)
                         {
-                         sch[row.loc]=row.partQty;   
+                            sch[row.loc] = row.partQty;
                         }
                     });
-                                 
-                    
                 });
-                 res.writeHead(200, {'Content-Type': 'application/json'});
-                 res.end(JSON.stringify(schArr));
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(schArr));
                 cb(null, conn);
             }
         });
 
     }
-  
+
     async.waterfall(
             [doConnect,
-             getSchP,
-             getSchP1
+                getSchP,
+                getSchP1
             ],
             function (err, conn) {
                 if (err) {

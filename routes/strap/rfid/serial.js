@@ -23,7 +23,6 @@ function serialInfo(req, res) {
     var doSelect = function (conn, cb) {
           var serial=[];
           let sqlStatement = `SELECT * FROM SERIAL_T WHERE BIN_ID='${req.query.binId}'`;
-            console.log(sqlStatement);
 
             conn.execute(sqlStatement
                     , [], {
@@ -34,11 +33,9 @@ function serialInfo(req, res) {
                     cb(err, conn);
                 } else {
                     if (result.rows.length === 0) {
-                       // cb({'err': 'ID not found in ' + table}, conn);
                         res.status(401).send({'err': 'Serial Number not available for bin ID :' + req.query.binId});//Added for response set
                          cb(null, conn);
-                    } else {
-                        //let obj=[];                       
+                    } else {                       
                         result.rows.forEach(function (row) {
                             var seriesObj = { serialNum:row.SERIAL_NUM||0}; 
                             serial.push(seriesObj);

@@ -27,8 +27,6 @@ function pickListInfo(req, res) {
 
         var sqlStatement = `SELECT * FROM PICK_LIST_T WHERE PART_GRP='${partGrp}' AND status='New'`;
 
-        console.log(sqlStatement);
-
         conn.execute(sqlStatement
                 , [], {
             outFormat: oracledb.OBJECT
@@ -38,7 +36,6 @@ function pickListInfo(req, res) {
                 cb(err, conn);
             } else {
                 if (result.rows.length === 0) {
-                    //cb({err: 'No Active Picklist found for this Part Group'}, conn);
                     res.status(401).send({err: 'No Active Picklist found for this Part Group'});//Added for response set
                     cb(null, conn);
                 } else {

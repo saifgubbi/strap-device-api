@@ -42,7 +42,6 @@ function idInfo(req, res) {
         } else {
 
             let sqlStatement = `SELECT * FROM ${table} WHERE ${idLabel}='${req.query.id}'`;
-            console.log(sqlStatement);
 
             conn.execute(sqlStatement
                     , [], {
@@ -53,7 +52,6 @@ function idInfo(req, res) {
                     cb(err, conn);
                 } else {
                     if (result.rows.length === 0) {
-                        // cb({'err': 'ID not found in ' + table}, conn);
                         res.status(401).send({'err': 'ID not found in ' + table});//Added for response set
                         cb(null, conn);
                     } else {

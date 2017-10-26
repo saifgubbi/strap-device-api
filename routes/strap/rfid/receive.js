@@ -61,11 +61,9 @@ function insertEvents(req, res, sqlStatement, bindArr) {
     };
 
     function doInsert(conn, cb) {
-        console.log("In  doInsert");
         let arrayCount = 1;
         async.eachSeries(bindArr, function (data, callback) {
             arrayCount++;
-            console.log("Inserting :", JSON.stringify(data));
             let insertStatement = sqlStatement;
             let bindVars = data;
             //  console.log(bindVars.join());

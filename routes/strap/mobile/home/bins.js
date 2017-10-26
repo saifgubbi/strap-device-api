@@ -9,14 +9,9 @@ router.get('/', function (req, res) {
     getData(req, res);
 });
 
-
 router.get('/binsDet', function (req, res) {
     getBinsDet(req, res);
 });
-
-
-
-
 
 module.exports = router;
 
@@ -27,9 +22,7 @@ function getData(req, res) {
 
     var partGrp = req.query.partGrp;
     var owner = req.query.owner;
-    //var role = req.query.role;
-    //var bins = {binsSeries: [], binsGroups: [], binLocCount: []};
-    var binArr = {bins:[],pallets:[]};
+    var binArr = {bins: [], pallets: []};
 
 
     var doConnect = function (cb) {
@@ -56,7 +49,7 @@ function getData(req, res) {
                                                 AND OWNER='${owner}'
                                            GROUP BY l.TYPE,a.qty
                                              )group by loc_Type`;
-  
+
         console.log(selectStatement);
 
         let bindVars = [];
@@ -70,28 +63,21 @@ function getData(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                    console.log(row); 
-                    let obj={};
-                     obj.locType=row.locType;
-                     obj.freeCount=row.freeCount||0;
-                     obj.total=row.total||0;
-                     binArr.bins.push(obj);
+            } else {
+                result.rows.forEach(function (row) {
+                    console.log(row);
+                    let obj = {};
+                    obj.locType = row.locType;
+                    obj.freeCount = row.freeCount || 0;
+                    obj.total = row.total || 0;
+                    binArr.bins.push(obj);
                 });
-                 console.log(binArr); 
-//                res.writeHead(200, {'Content-Type': 'application/json'});
-//               res.end(JSON.stringify(binArr));
+                console.log(binArr);
                 cb(null, conn);
-
             }
-
         });
-
     }
     function getPallets(conn, cb) {
-        console.log("Getting Header");
-
         let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",( select count(1) from PALLETS_T where OWNER='${owner}' ) as "total"
                                           FROM(
                                             SELECT case  WHEN l.TYPE='Plant' Then 'plant'
@@ -105,8 +91,6 @@ function getData(req, res) {
                                                 AND OWNER='${owner}'
                                            GROUP BY l.TYPE,a.qty
                                              )group by loc_Type`;
-  
-        console.log(selectStatement);
 
         let bindVars = [];
 
@@ -119,13 +103,13 @@ function getData(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                    let obj={};
-                     obj.locType=row.locType;
-                     obj.freeCount=row.freeCount||0;
-                     obj.total=row.total||0;
-                     binArr.pallets.push(obj);
+            } else {
+                result.rows.forEach(function (row) {
+                    let obj = {};
+                    obj.locType = row.locType;
+                    obj.freeCount = row.freeCount || 0;
+                    obj.total = row.total || 0;
+                    binArr.pallets.push(obj);
                 });
 
                 res.writeHead(200, {'Content-Type': 'application/json'});
@@ -159,6 +143,7 @@ function getBinsDet(req, res) {
     var locId = req.query.locId;
     var status = req.query.status;
     var option = req.query.option;
+    //var partGrp = req.query.partGrp;
 
     var sqlStatement;
     if (status === 'Free') {

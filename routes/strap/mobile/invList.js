@@ -38,7 +38,6 @@ function getData(req, res) {
     };
     
      function getInvoice(conn, cb) {
-        console.log("Getting List");
         let selectStatement = `SELECT ih.invoice_num as "invId",ih.inv_dt as "invDt",part_no as "partNo",sum(qty) as "qty",status as "status"
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                  WHERE ih.invoice_num=il.invoice_num
@@ -46,8 +45,7 @@ function getData(req, res) {
                                    AND part_no IS NOT NULL
                                    AND ih.part_grp='${partGrp}'${locType}
                                   GROUP BY ih.invoice_num,ih.inv_dt,part_no,status`;
-        console.log(selectStatement);
-
+       
         let bindVars = [];
         
         conn.execute(selectStatement
@@ -75,7 +73,6 @@ function getData(req, res) {
     };
 
     function getStatus(conn, cb) {
-        console.log("Getting List");
         let selectStatement = `SELECT  count(1) as "count",status as "status"
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                  WHERE ih.invoice_num=il.invoice_num
@@ -83,8 +80,7 @@ function getData(req, res) {
                                    AND part_no IS NOT NULL
                                    AND ih.part_grp='${partGrp}'${locType}
                                   GROUP BY status`;
-        console.log(selectStatement);
-
+       
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -102,15 +98,12 @@ function getData(req, res) {
                     obj.attr.count = row.count;
                     obj.attr.status = row.status;
                     obj.children = [];
-                  //  console.log(invArr);
                     invArr.forEach(function (inv) {
                         if (inv.status === obj.attr.status) {
-                            //console.log(inv);
-                            var tempObj = {attr:inv}
+                            var tempObj = {attr:inv};
                             obj.children.push(tempObj);
                         }
                     });
-                    console.log(statArr);
                     statArr.push(obj);
                 });
                  res.writeHead(200, {'Content-Type': 'application/json'});
