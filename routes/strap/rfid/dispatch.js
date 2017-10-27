@@ -10,6 +10,10 @@ router.post('/', function (req, res) {
 
 module.exports = router;
 
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
 function dispatchObj(req, res) {
 
     let partGrp = req.body.partGrp;
@@ -17,10 +21,9 @@ function dispatchObj(req, res) {
     let locId = req.body.locId;
     let lr = req.body.lr;
 
-
     let ts = new Date().getTime();
     let invArr = [];
-
+    let uInvArr =[];
     let bindArr = [];
 
     /*Insert Pallet SQL*/
@@ -32,18 +35,18 @@ function dispatchObj(req, res) {
         let binVars = [obj.id, obj.type, 'Dispatched', new Date(), locId, null, '', obj.partNo, obj.qty, obj.invId, userId, null, 0, ts, null, null, partGrp, lr, null, null];
         if (invArr.indexOf() < 0) {
             invArr.push(obj.invId);
+            uInvArr = invArr.filter( onlyUnique );
         }
         bindArr.push(binVars);
+        
     });
-
     /*Insert Unique Invoices with Dispatched Status*/
-    invArr.forEach(function (invID) {
+    uInvArr.forEach(function (invID) {
         let binVars = [invID, 'Invoice', 'Dispatched', new Date(), locId, null, '', '', 0, invID, userId, null, 0, ts, null, null, partGrp, lr, null, null];
         bindArr.push(binVars);
     });
 
     insertEvents(req, res, sqlStatement, bindArr);
-
 }
 
 function insertEvents(req, res, sqlStatement, bindArr) {
@@ -56,9 +59,9 @@ function insertEvents(req, res, sqlStatement, bindArr) {
             cb(null, conn);
         });
     };
-
+  
     function doInsert(conn, cb) {
-        let arrayCount = 1;
+        let arrayCount = 0;
         async.eachSeries(bindArr, function (data, callback) {
             arrayCount++;
             let insertStatement = sqlStatement;

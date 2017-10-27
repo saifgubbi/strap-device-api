@@ -15,10 +15,6 @@ dbconfig.pools.forEach(function (pool) {
                 user: pool.user,
                 password: pool.password,
                 connectString: pool.connectString
-//                ,poolMax:10//default 4
-//                poolMin:          2,//default 0
-//                poolIncrement:    5//default 1
-//                ,poolTimeout:      4 //default60
             },
             function (err, pool) {
 //            console.log(pool.poolAlias); // 'default'
@@ -34,8 +30,8 @@ process.on('unhandledRejection', (reason, p) => {
 
 
 function doConnect() {
-    console.log(`Getting Connection from Pool ${domain}`);
-    console.log(oracledb.pool._logStats());
+   // console.log(`Getting Connection from Pool ${domain}`);
+   // console.log(oracledb.pool._logStats());
     return oracledb.getConnection(domain);
 }
 
@@ -110,7 +106,7 @@ function getSQLRes(sqlStatement, bindVars,callback) {
 
 /*Function with call backs to use instead of */
 function doConnectCB( cb) {
-    console.log(oracledb.getPool("strap")._logStats());
+  //  console.log(oracledb.getPool("strap")._logStats());
     oracledb.getConnection(domain, cb);
     
 }
