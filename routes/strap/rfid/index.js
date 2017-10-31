@@ -11,7 +11,7 @@ router.use('/release', require('./release'));
 router.use('/dispatch', require('./dispatch'));
 router.use('/receive', require('./receive'));
 router.use('/picking', require('./picking'));
-
+router.use('/review', require('./review'));
 
 //router.use('/inquiry', require('./inquiry'));
 

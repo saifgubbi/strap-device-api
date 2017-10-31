@@ -17,7 +17,15 @@ router.get('/', function (req, res) {
 });
 
 module.exports = router;
-
+/**
+ * @api {put} /id/:id Get LR for Dispatch
+ * @apiVersion 1.0.0
+ * @apiName lr/dispatch
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the LR Number before Dispatch.
+ */
 function getDipatchLR(req, res) {
 
     var doconnect = function (cb) {
@@ -79,7 +87,15 @@ function getDipatchLR(req, res) {
 
 }
 
-
+/**
+ * @api {put} /id/:id Get LR for Receive
+ * @apiVersion 1.0.0
+ * @apiName lr/receive
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the LR number for receiving.
+ */
 
 function getReceiveLR(req, res) {
 
@@ -142,8 +158,15 @@ function getReceiveLR(req, res) {
 
 }
 
-
-
+/**
+ * @api {put} /id/:id Get LR Details
+ * @apiVersion 1.0.0
+ * @apiName lr/details
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the LR details.
+ */
 function getLRDetails(req, res) {
 
     var doconnect = function (cb) {
@@ -177,8 +200,8 @@ function getLRDetails(req, res) {
                         let obj = {};
                         obj.id = row.OBJ_ID;
                         obj.type = row.OBJ_TYPE;
-                        obj.invId = row.INVOICE_NUM;
-                        obj.partNo = row.PART_NO;
+                        obj.invId = row.INVOICE_NUM||'NULL';
+                        obj.partNo = row.PART_NO||'NULL';
                         obj.qty = row.QTY||0;
                         objArr.push(obj);
                     });

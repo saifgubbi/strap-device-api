@@ -12,7 +12,15 @@ module.exports = router;
 function onlyUnique(value, index, self) { 
     return self.indexOf(value) === index;
 }
-
+/**
+ * @api {put} /id/:id Post Bins/Pallets Receive
+ * @apiVersion 1.0.0
+ * @apiName receive
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to receive the reached bins/pallets.
+ */
 function receiveObj(req, res) {
 
     let partGrp = req.body.partGrp;

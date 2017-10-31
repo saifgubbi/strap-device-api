@@ -9,7 +9,15 @@ router.get('/', function (req, res) {
 });
 
 module.exports = router;
-
+/**
+ * @api {put} /id/:id Get Serial Details
+ * @apiVersion 1.0.0
+ * @apiName serial
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the serial number details of a bin.
+ */
 function serialInfo(req, res) {
 
     var doconnect = function (cb) {

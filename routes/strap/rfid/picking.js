@@ -19,7 +19,15 @@ router.post('/picks', function (req, res) {
 
 module.exports = router;
 
-
+/**
+ * @api {put} /id/:id Fetch Serialized Details
+ * @apiVersion 1.0.0
+ * @apiName picking/serialized
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the serialized status of partNo.
+ */
 function serialInfo(req, res) {
 
     var doconnect = function (cb) {
@@ -77,7 +85,15 @@ function serialInfo(req, res) {
             });
 
 }
-
+/**
+ * @api {put} /id/:id Post Non Serialized Picking
+ * @apiVersion 1.0.0
+ * @apiName picking/nonSerialized
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to Post the Picking details for non serialized partNo.
+ */
 function pickNonSerial(req, res) {
     let userId = req.body.userId;
     let locId = req.body.locId;
@@ -160,7 +176,15 @@ function insertEvents(req, res, sqlStatement, bindArr) {
                     conn.close();
             });
 }
-
+/**
+ * @api {put} /id/:id Post Serialized Picking
+ * @apiVersion 1.0.0
+ * @apiName picking/serialized
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to Post the Picking details for serialized partNo.
+ */
 function pickSerial(req, res) {
     let userId = req.body.userId;
     let locId = req.body.locId;
@@ -174,7 +198,7 @@ function pickSerial(req, res) {
     /*Insert Pallet SQL*/
 
     let sqlStatement = "INSERT INTO EVENTS_T VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13,:14,:15,:16,:17,:18,:19,:20) ";
-
+    
     req.body.objArray.forEach(function (obj) {
         if (obj.partArray.length>0) {
             obj.partArray.forEach(function (part) {

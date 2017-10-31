@@ -11,7 +11,15 @@ router.get('/list', function (req, res) {
 
 module.exports = router;
 
-
+/**
+ * @api {put} /id/:id Get Picklist Details
+ * @apiVersion 1.0.0
+ * @apiName lr/receive
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the LR number for receiving.
+ */
 function pickListInfo(req, res) {
 
     var doconnect = function (cb) {
@@ -39,17 +47,18 @@ function pickListInfo(req, res) {
                     res.status(401).send({err: 'No Active Picklist found for this Part Group'});//Added for response set
                     cb(null, conn);
                 } else {
-                    let objArr = [];
+                    var objArr = [];
                     result.rows.forEach(function (row) {
                         let obj = {};
-                        obj.pickList = row.PICK_LIST;
+                        obj.pickList = row.PICK_LIST||'NULL';
                         obj.pickDate = row.PICK_DATE;
-                        obj.invId = row.INVOICE_NUM;
-                        obj.partNo = row.PART_NO;
+                        obj.invId = row.INVOICE_NUM||'NULL';
+                        obj.partNo = row.PART_NO||'NULL';
                         obj.qty = row.QTY||0;
                         objArr.push(obj);
                     });
                     res.writeHead(200, {'Content-Type': 'application/json'});
+                    console.log(objArr);
                     res.end(JSON.stringify(objArr).replace(null, '"NULL"'));
                     cb(null, conn);
                 }

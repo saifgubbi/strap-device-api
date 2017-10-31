@@ -3,7 +3,6 @@ var router = express.Router();
 var op = require('../../../oracleDBOps');
 var async = require('async');
 
-
 router.post('/', function (req, res) {
     dispatchObj(req, res);
 });
@@ -13,7 +12,15 @@ module.exports = router;
 function onlyUnique(value, index, self) { 
     return self.indexOf(value) === index;
 }
-
+/**
+ * @api {put} /id/:id Post Dispatch Bins/Pallets
+ * @apiVersion 1.0.0
+ * @apiName dispatch
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to Disptach the bin/pallet details based on Invoice/LrNo.
+ */
 function dispatchObj(req, res) {
 
     let partGrp = req.body.partGrp;

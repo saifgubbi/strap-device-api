@@ -15,6 +15,7 @@ router.use('/invHist', require('./invHist'));
 router.use('/invMap', require('./invMap'));
 router.use('/sched', require('./sched'));
 router.use('/notification', require('./notification'));
+router.use('/gps', require('./gps'));
 
 router.use('/parts/partLocType', require('./parts/partLocType'));
 router.use('/parts/status', require('./parts/status'));

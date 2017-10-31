@@ -10,7 +10,15 @@ router.post('/', function (req, res) {
 
 module.exports = router;
 
-
+/**
+ * @api {put} /id/:id Post Release Bins/Pallets
+ * @apiVersion 1.0.0
+ * @apiName release
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to release the bins or pallets.
+ */
 function release(req, res) {
     let userId = req.body.userId;
     let locId = req.body.locId;

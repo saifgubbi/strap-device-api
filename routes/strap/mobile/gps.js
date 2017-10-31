@@ -1,20 +1,40 @@
 var express = require('express');
 var router = express.Router();
-var async = require('async');
 var op = require('../../../oracleDBOps');
+var async = require('async');
 var oracledb = require('oracledb');
 
-router.get('/', function (req, res) {
-    idInfo(req, res);
+router.post('/', function (req, res) {
+    pickLoc(req, res);
 });
 
+router.get('/', function (req, res) {
+    getLoc(req, res);
+});
 
 module.exports = router;
 
-function idInfo(req, res) {
-    let table;
-    let idLabel;
-    let type;
+var fs = require('fs');
+
+
+
+function pickLoc(req, res) {
+    let deviceId = req.body.deviceId;
+    let lat = req.body.lat;
+    let lan = req.body.lan;  
+    let comments = req.body.comments; 
+    let ts = req.body.time;
+    
+   // let bindArr = [];
+
+    let sqlStatement = "INSERT INTO GPS_DEVICE_T VALUES (:1,:2,:3,:4,:5) ";
+    let bindVars=[deviceId, ts, lat, lan, comments];
+    op.singleSQL(sqlStatement, bindVars, req, res);
+}
+
+function getLoc(req, res) {
+    
+    let deviceId = req.query.deviceId;
 
     var doconnect = function (cb) {
         op.doConnectCB(cb);
@@ -26,21 +46,7 @@ function idInfo(req, res) {
 
     var doSelect = function (conn, cb) {
 
-        if (req.query.id.charAt(0) === '0') {
-            table = 'BINS_T';
-            idLabel = 'BIN_ID';
-            type = 'Bin';
-        }
-        if (req.query.id.charAt(0) === '1') {
-            table = 'PALLETS_T';
-            idLabel = 'PALLET_ID';
-            type = 'Pallet';
-        }
-        if (!table) {
-            cb({"err": "Invalid ID selected"}, conn);
-        } else {
-
-            let sqlStatement = `SELECT * FROM ${table} WHERE ${idLabel}='${req.query.id}'`;
+       let sqlStatement = `SELECT * FROM GPS_DEVICE_T WHERE DEVICE_ID='${deviceId}'`;
             
             conn.execute(sqlStatement
                     , [], {
@@ -51,24 +57,22 @@ function idInfo(req, res) {
                     cb(err, conn);
                 } else {
                     if (result.rows.length === 0) {
-                        cb({'err': 'ID not found in ' + table}, conn);
+                        cb({'err': 'ID not found in GPS Devices'}, conn);
                     } else {
-                        let idDet = {};
+                        let gpsDet = {};
                         result.rows.forEach(function (row) {
-                            idDet.id = row.BIN_ID || row.PALLET_ID;
-                            idDet.status = row.STATUS;
-                            idDet.partNo = row.PART_NO;
-                            idDet.fromLoc = row.FROM_LOC;
-                            idDet.qty = row.QTY || 0;
-                            idDet.type = type;
+                            gpsDet.deviceId = row.DEVICE_ID;
+                            gpsDet.eventTs = row.EVENT_TS;
+                            gpsDet.lat = row.LAT;
+                            gpsDet.lon = row.LON;
+                            gpsDet.comments = row.COMMENTS;
                         });
                         res.writeHead(200, {'Content-Type': 'application/json'});
-                        res.end(JSON.stringify(idDet).replace(null, '"NULL"'));
+                        res.end(JSON.stringify(gpsDet).replace(null, '"NULL"'));
                         cb(null, conn);
                     }
                 }
             });
-        }
     };
 
     async.waterfall(
