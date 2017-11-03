@@ -8,6 +8,10 @@ router.get('/', function (req, res) {
     idInfo(req, res);
 });
 
+router.get('/view', function (req, res) {
+    viewInfo(req, res);
+});
+
 module.exports = router;
 
 /**
@@ -90,9 +94,102 @@ function idInfo(req, res) {
                             idDet.id = row.BIN_ID || row.PALLET_ID;
                             idDet.status = row.STATUS;
                             idDet.partNo = row.PART_NO;
-                            idDet.fromLoc = row.fromLoc;
+                            idDet.fromLoc = row.FROM_LOC;
                             idDet.qty = row.QTY || 0;
                             idDet.type = type;
+                        });
+                        res.writeHead(200, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify(idDet).replace(null, '"NULL"'));
+                        cb(null, conn);
+                    }
+                }
+            });
+        }
+    };
+
+    async.waterfall(
+            [
+                doconnect,
+                doSelect
+            ],
+            function (err, conn) {
+                if (err) {
+                    console.error("In waterfall error cb: ==>", err, "<==");
+                    res.writeHead(400, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify(err));
+                    if (conn)
+                    {
+                        dorelease(conn);
+                    }
+                }
+                if (conn)
+                {
+                    dorelease(conn);
+                }
+            });
+
+}
+
+function viewInfo(req, res) {
+    let table;
+    let idLabel;
+    let type;
+
+    var doconnect = function (cb) {
+        op.doConnectCB(cb);
+    };
+
+    var dorelease = function (conn) {
+        conn.close();
+    };
+
+    var doSelect = function (conn, cb) {
+
+        if (req.query.id.charAt(0) === '0') {
+            table = 'BINS_T';
+            idLabel = 'BIN_ID';
+            type = 'Bin';
+        }
+        if (req.query.id.charAt(0) === '1') {
+            table = 'PALLETS_T';
+            idLabel = 'PALLET_ID';
+            type = 'Pallet';
+        }
+        if (!table) {
+            //cb({"err": "Invalid ID selected"}, conn);
+            res.status(401).send({"err": "Invalid ID selected"});//Added for response set
+            cb(null, conn);
+        } else {
+
+            let sqlStatement = `SELECT * FROM ${table} WHERE ${idLabel}='${req.query.id}'`;
+            console.log(sqlStatement);
+            conn.execute(sqlStatement
+                    , [], {
+                outFormat: oracledb.OBJECT
+            }, function (err, result)
+            {
+                if (err) {
+                    cb(err, conn);
+                } else {
+                    if (result.rows.length === 0) {
+                        res.status(401).send({'err': 'ID not found in ' + table});//Added for response set
+                        cb(null, conn);
+                    } else {
+                        let idDet = {};
+                        result.rows.forEach(function (row) {
+                            idDet.id = row.BIN_ID || row.PALLET_ID;
+                            idDet.status = row.STATUS;
+                            idDet.partNo = row.PART_NO||'NULL';
+                            idDet.fromLoc = row.FROM_LOC;
+                            idDet.type = type;
+                            idDet.qty = row.QTY || 0;
+                            idDet.owner = row.OWNER;
+                            idDet.invoice = row.INVOICE_NUM||'NULL';
+                            idDet.partGrp = row.PART_GROUP;
+                            if (type === 'Bin')
+                            {
+                            idDet.palletId = row.PALLET_ID||'NULL';
+                             }
                         });
                         res.writeHead(200, {'Content-Type': 'application/json'});
                         res.end(JSON.stringify(idDet).replace(null, '"NULL"'));
