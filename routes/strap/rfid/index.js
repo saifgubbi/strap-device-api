@@ -6,12 +6,14 @@ router.use('/id', require('./id'));
 router.use('/lr', require('./lr'));
 router.use('/pickList', require('./pickList'));
 router.use('/serial', require('./serial'));
+router.use('/user', require('./user'));
 
 router.use('/release', require('./release'));
 router.use('/dispatch', require('./dispatch'));
 router.use('/receive', require('./receive'));
 router.use('/picking', require('./picking'));
 router.use('/review', require('./review'));
+
 
 //router.use('/inquiry', require('./inquiry'));
 
