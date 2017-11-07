@@ -15,6 +15,11 @@ router.get('/', function (req, res) {
     getIncident(req, res);
 });
 
+router.put('/', function (req, res) {
+    updateIncident(req, res);
+});
+
+
 router.get('/img', function (req, res) {
     getImage(req, res);
 });
@@ -40,23 +45,6 @@ var upload = multer({
     storage: Storage
 }).single("file"); //Field name and max count
 
-
-//function createIncident(req, res) {
-//    let userId = req.body.userId;
-//    let locId = req.body.locId;
-//    let partGrp = req.body.partGrp;
-//    let partNo = req.body.partNo;
-//    let pickList = req.body.pickList;
-//    let ts = new Date().getTime();
-//    
-//    let bindArr = [];
-//
-//    var sqlStatement = "INSERT INTO INCIDENTS_T VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11) ";
-//    var binVars = [sequence(max 1),req.body.id, new Date(),ts, req.body.problem, req.body.category, imgName, req.body.priority,partGrp, locId, userId];
-//    op.singleSQL(sqlStatement, binVars, req, res);
-//    
-//}
-
 function createIncident(req, res) {
 
     let sqlStatement;
@@ -69,6 +57,7 @@ function createIncident(req, res) {
     let category = req.body.category;
     let ts = new Date().getTime();
     let bindArr=[];
+    let incArr = [];
     
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
@@ -90,6 +79,8 @@ function createIncident(req, res) {
             } else {
                 result.rows.forEach(function (row) {
                     console.log(row);
+                    var inArr={incId:row[0]+1};
+                    incArr.push(inArr);
                     let binVars = [row[0]+1,id, new Date(),ts, problem, category, imgName, priority,partGrp, locId, userId,'New'];
                     bindArr.push(binVars);
                 });
@@ -123,10 +114,10 @@ function createIncident(req, res) {
                 res.writeHead(500, {'Content-Type': 'application/json'});
                 res.end(`errorMsg:${err}}`);
             } else {
-                res.writeHead(200); 
-                res.end("Incident Created Sucessfully!");
+                       res.writeHead(200, {'Content-Type': 'application/json'});
+                       res.end(JSON.stringify(incArr).replace(null, '"NULL"'));
+                        cb(null, conn);
             }
-            cb(null, conn);
         }
         );
     }
@@ -146,18 +137,56 @@ function createIncident(req, res) {
                     conn.close();
             });
 }
-//
-// function createIncident2 (req, res) {
-//    upload(req, res, function (err) {
-//        console.log(req.body);
-//        
-//        if (err) {
-//            console.log(err);
-//            return res.end("Something went wrong!");
-//        }
-//        return res.end("File uploaded sucessfully!.");
-//    });
-//};
+
+
+ function updateIncident (req, res) {
+    upload(req, res, function (err) {
+        var incId = req.body.incId;
+        var sqlStatement;
+        var userId = req.body.userId;
+        var comments = req.body.comments;
+        var partGrp = req.body.partGrp;
+    
+        var doConnect = function (cb) {
+            op.doConnectCB(function (err, conn) {
+                cb(null, conn);
+            });
+        };
+        
+        var getIncident = function (conn, cb) {
+        sqlStatement = "INSERT INTO INCIDENTS_T VALUES (:1,:2,:3,:4) ";
+        let bindVars = [incId,imgName, comments,partGrp, userId];
+        conn.execute(sqlStatement, bindVars, {
+            autoCommit: true// Override the default non-autocommit behavior,
+        }, function (err, result)
+        {
+            if (err) {
+                cb(err, conn);
+            } else {  
+                    console.log("File uploaded sucessfully!."); // 1          
+                    cb(null, conn);
+                    }
+                cb(null, conn);
+            }) ;
+        };
+         //console.log(req.body);
+                
+   
+            async.waterfall(
+            [doConnect,
+                getIncident
+            ],
+            function (err, conn) {
+                if (err) {
+                    console.error("In waterfall error cb: ==>", err, "<==");
+                    res.status(400).json({message: err});
+                }
+                console.log("Done Waterfall");
+                if (conn)
+                    conn.close();
+            });
+         });
+};
 
 function getImage (req, res) {
     var storedMimeType = 'image/jpeg';
