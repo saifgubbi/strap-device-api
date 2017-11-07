@@ -4,8 +4,8 @@ var op = require('../../../oracleDBOps');
 var async = require('async');
 var oracledb = require('oracledb');
 var multer = require('multer');
-var fs=require('fs');
-var path=require('path');
+var fs = require('fs');
+var path = require('path');
 
 router.post('/', function (req, res) {
     createIncident(req, res);
@@ -55,10 +55,11 @@ function createIncident(req, res) {
     let problem = req.body.problem;
     let priority = req.body.priority;
     let category = req.body.category;
+    let type = req.body.type;
     let ts = new Date().getTime();
-    let bindArr=[];
+    let bindArr = [];
     let incArr = [];
-    
+
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             cb(null, conn);
@@ -67,7 +68,7 @@ function createIncident(req, res) {
 
     var getIncident = function (conn, cb) {
         let getInvSQL = `SELECT NVL(MAX(INC_ID),0) FROM INCIDENTS_T`;
-        sqlStatement = "INSERT INTO INCIDENTS_T VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12) ";
+        sqlStatement = "INSERT INTO INCIDENTS_T VALUES (:1,:2,:3,:4,:5,:6,:7,:8,:9,:10,:11,:12,:13) ";
 
         let bindVars = [];
         conn.execute(getInvSQL, bindVars, {
@@ -79,9 +80,9 @@ function createIncident(req, res) {
             } else {
                 result.rows.forEach(function (row) {
                     console.log(row);
-                    var inArr={incId:row[0]+1};
+                    var inArr = {incId: row[0] + 1};
                     incArr.push(inArr);
-                    let binVars = [row[0]+1,id, new Date(),ts, problem, category, imgName, priority,partGrp, locId, userId,'New'];
+                    let binVars = [row[0] + 1, id, new Date(), ts, problem, category, imgName, priority, partGrp, locId, userId, 'New', type];
                     bindArr.push(binVars);
                 });
                 cb(null, conn);
@@ -114,9 +115,9 @@ function createIncident(req, res) {
                 res.writeHead(500, {'Content-Type': 'application/json'});
                 res.end(`errorMsg:${err}}`);
             } else {
-                       res.writeHead(200, {'Content-Type': 'application/json'});
-                       res.end(JSON.stringify(incArr).replace(null, '"NULL"'));
-                        cb(null, conn);
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(incArr).replace(null, '"NULL"'));
+                cb(null, conn);
             }
         }
         );
@@ -139,40 +140,85 @@ function createIncident(req, res) {
 }
 
 
- function updateIncident (req, res) {
+function updateIncident(req, res) {
     upload(req, res, function (err) {
         var incId = req.body.incId;
         var sqlStatement;
         var userId = req.body.userId;
-        var comments = req.body.comments;
-        var partGrp = req.body.partGrp;
-    
+        var description = req.body.description;
+
         var doConnect = function (cb) {
             op.doConnectCB(function (err, conn) {
                 cb(null, conn);
             });
         };
-        
+
         var getIncident = function (conn, cb) {
-        sqlStatement = "INSERT INTO INCIDENTS_T VALUES (:1,:2,:3,:4) ";
-        let bindVars = [incId,imgName, comments,partGrp, userId];
+            sqlStatement = "INSERT INTO INCIDENTS_IMG_T VALUES (:1,:2,:3,:4) ";
+            let bindVars = [incId, imgName, description, userId];
+            conn.execute(sqlStatement, bindVars, {
+                autoCommit: true// Override the default non-autocommit behavior,
+            }, function (err, result)
+            {
+                if (err) {
+                    cb(err, conn);
+                } else {
+                    console.log("File uploaded sucessfully!."); // 1          
+                    cb(null, conn);
+                }
+                cb(null, conn);
+            });
+        };
+        //console.log(req.body);
+
+
+        async.waterfall(
+                [doConnect,
+                    getIncident
+                ],
+                function (err, conn) {
+                    if (err) {
+                        console.error("In waterfall error cb: ==>", err, "<==");
+                        res.status(400).json({message: err});
+                    }
+                    console.log("Done Waterfall");
+                    if (conn)
+                        conn.close();
+                });
+    });
+}
+;
+
+
+function updateIncident(req, res) {
+    var incId = req.body.incId;
+    var sqlStatement;
+    var userId = req.body.userId;
+    var comments = req.body.comments;
+
+    var doConnect = function (cb) {
+        op.doConnectCB(function (err, conn) {
+            cb(null, conn);
+        });
+    };
+
+    var getIncident = function (conn, cb) {
+        sqlStatement = "INSERT INTO INCIDENTS_COM_T VALUES (:1,:2,:3) ";
+        let bindVars = [incId, comments, userId];
         conn.execute(sqlStatement, bindVars, {
             autoCommit: true// Override the default non-autocommit behavior,
         }, function (err, result)
         {
             if (err) {
                 cb(err, conn);
-            } else {  
-                    console.log("File uploaded sucessfully!."); // 1          
-                    cb(null, conn);
-                    }
+            } else {
+                console.log("Comment Updated Sucessfully!."); // 1          
                 cb(null, conn);
-            }) ;
-        };
-         //console.log(req.body);
-                
-   
-            async.waterfall(
+            }
+            cb(null, conn);
+        });
+    };
+    async.waterfall(
             [doConnect,
                 getIncident
             ],
@@ -185,10 +231,10 @@ function createIncident(req, res) {
                 if (conn)
                     conn.close();
             });
-         });
-};
+}
+;
 
-function getImage (req, res) {
+function getImage(req, res) {
     var storedMimeType = 'image/jpeg';
     res.setHeader('Content-Type', storedMimeType);
     fs.createReadStream(path.join('./images/', req.params.id).replace(/\.[^/.]+$/, "")).pipe(res)
@@ -207,7 +253,7 @@ function getIncident(req, res) {
         });
     };
 
-     function getEvents(conn, cb) {
+    function getEvents(conn, cb) {
 
         let selectStatement = `SELECT INC_ID,EVENT_ID,EVENT_DATE,EVENT_TS,PROBLEM,CATEGORY,PICTURE,PRIORITY,LOC_ID,USER_ID,STATUS
                                  FROM INCIDENTS_T A
@@ -228,24 +274,24 @@ function getIncident(req, res) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
             } else {
-                        let attr = [];
-                        result.rows.forEach(function (row) {
-                            let obj={};
-                            obj.incId=row.INC_ID;
-                            obj.eventId = row.EVENT_ID;
-                            obj.eventName = row.EVENT_NAME;
-                            obj.eventDt = row.EVENT_DATE;
-                            obj.eventTs = row.EVENT_TS;
-                            obj.problem = row.PROBLEM;
-                            obj.category = row.CATEGORY;
-                            obj.priority = row.PRIORITY;
-                            obj.locId = row.LOC_ID;
-                            obj.status = row.STATUS;
-                            attr.push(obj);
-                        });
-                        res.writeHead(200, {'Content-Type': 'application/json'});
-                        res.end(JSON.stringify(attr).replace(null, '"NULL"'));
-                        cb(null, conn);                
+                let attr = [];
+                result.rows.forEach(function (row) {
+                    let obj = {};
+                    obj.incId = row.INC_ID;
+                    obj.eventId = row.EVENT_ID;
+                    obj.eventName = row.EVENT_NAME;
+                    obj.eventDt = row.EVENT_DATE;
+                    obj.eventTs = row.EVENT_TS;
+                    obj.problem = row.PROBLEM;
+                    obj.category = row.CATEGORY;
+                    obj.priority = row.PRIORITY;
+                    obj.locId = row.LOC_ID;
+                    obj.status = row.STATUS;
+                    attr.push(obj);
+                });
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(attr).replace(null, '"NULL"'));
+                cb(null, conn);
             }
         });
 
