@@ -9,7 +9,7 @@ router.use('/id', require('./id'));
 //router.use('/release', require('./release'));
 //router.use('/dispatch', require('./dispatch'));
 //router.use('/receive', require('./receive'));
-//router.use('/picking', require('./picking'));
+router.use('/incident', require('./incident'));
 router.use('/invList', require('./invList'));
 router.use('/invHist', require('./invHist'));
 router.use('/invMap', require('./invMap'));
