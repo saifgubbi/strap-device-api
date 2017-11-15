@@ -15,10 +15,13 @@ router.get('/', function (req, res) {
     getIncident(req, res);
 });
 
-router.put('/', function (req, res) {
+router.post('/comment', function (req, res) {
     updateIncident(req, res);
 });
 
+router.post('/image', function (req, res) {
+    updateImage(req, res);
+});
 
 router.get('/img', function (req, res) {
     getImage(req, res);
@@ -139,8 +142,8 @@ function createIncident(req, res) {
             });
 }
 
-
-function updateIncident(req, res) {
+         
+function updateImage (req, res) {
     upload(req, res, function (err) {
         var incId = req.body.incId;
         var sqlStatement;
@@ -163,7 +166,9 @@ function updateIncident(req, res) {
                 if (err) {
                     cb(err, conn);
                 } else {
-                    console.log("File uploaded sucessfully!."); // 1          
+                    console.log("File uploaded sucessfully!."); // 1  
+                    res.writeHead(200, {'Content-Type': 'application/json'});
+                    res.end(`Image Updated Sucessfully`);
                     cb(null, conn);
                 }
                 cb(null, conn);
@@ -186,9 +191,7 @@ function updateIncident(req, res) {
                         conn.close();
                 });
     });
-}
-;
-
+};
 
 function updateIncident(req, res) {
     var incId = req.body.incId;
@@ -212,10 +215,12 @@ function updateIncident(req, res) {
             if (err) {
                 cb(err, conn);
             } else {
-                console.log("Comment Updated Sucessfully!."); // 1          
+                console.log("Comment Updated Sucessfully!."); // 1
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(`Comment Updated Sucessfully`);
                 cb(null, conn);
             }
-            cb(null, conn);
+            //cb(null, conn);
         });
     };
     async.waterfall(
@@ -229,7 +234,9 @@ function updateIncident(req, res) {
                 }
                 console.log("Done Waterfall");
                 if (conn)
-                    conn.close();
+                    {
+                        conn.close();
+                    }
             });
 }
 ;
@@ -243,8 +250,7 @@ function getImage(req, res) {
 function getIncident(req, res) {
 
     var partGrp = req.query.partGrp;
-    var locId = req.query.locId;
-    var status = req.query.status;
+    var status ='';
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
@@ -252,14 +258,25 @@ function getIncident(req, res) {
             cb(null, conn);
         });
     };
-
+    
+    if (req.query.status)
+    {
+        if (req.query.status==='Closed')
+        {
+        status=`AND STATUS = 'Resolved'`;
+        }
+        else
+        {
+           status=`AND STATUS <> 'Resolved'`;  
+        }
+    
+    }
+    
     function getEvents(conn, cb) {
 
         let selectStatement = `SELECT INC_ID,EVENT_ID,EVENT_DATE,EVENT_TS,PROBLEM,CATEGORY,PICTURE,PRIORITY,LOC_ID,USER_ID,STATUS
                                  FROM INCIDENTS_T A
-                                WHERE LOC_ID='${locId}'
-                                  AND PART_GRP='${partGrp}'
-                                  AND STATUS ='${status}'
+                                WHERE PART_GRP='${partGrp}' ${status}
                              ORDER BY EVENT_TS DESC`;
 
         let bindVars = [];
