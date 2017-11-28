@@ -15,7 +15,7 @@ router.get('/view', function (req, res) {
 module.exports = router;
 
 /**
- * @api {put} /id/:id Get bin/pallet details
+ * @api {get} /id/:id Get bin/pallet details
  * @apiVersion 1.0.0
  * @apiName idInfo
  * @apiGroup rfid
@@ -34,7 +34,7 @@ module.exports = router;
  *    "type": "Pallet"
  *     }
  * @apiExample Example usage:
- * curl -i http://localhost//api/strap/rfid/id?id=1000000000000002
+ * curl -i http://localhost/api/strap/rfid/id?id=1000000000000002
  * @apiError UserNotFound The id of the User was not found.
  *
  * @apiErrorExample Error-Response:
@@ -58,13 +58,12 @@ function idInfo(req, res) {
     };
 
     var doSelect = function (conn, cb) {
-
-        if (req.query.id.charAt(0) === '0') {
+        if (req.query.id.charAt(8) === '0') {
             table = 'BINS_T';
             idLabel = 'BIN_ID';
             type = 'Bin';
         }
-        if (req.query.id.charAt(0) === '1') {
+        if (req.query.id.charAt(8) === '1') {
             table = 'PALLETS_T';
             idLabel = 'PALLET_ID';
             type = 'Pallet';
@@ -129,7 +128,38 @@ function idInfo(req, res) {
             });
 
 }
-
+/**
+ * @api {get} /id/:id Get bin/pallet details for view
+ * @apiVersion 1.0.0
+ * @apiName viewInfo
+ * @apiGroup rfid
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to fetch the bin/pallet details based on id entered.
+ *
+ * @apiParam {String} id first character of id represents Bin/Pallet Bin=0 and Pallet=1.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "id": "1000000000000171",
+ *       "status": "Ready",
+ *       "partNo": "NULL",
+ *       "fromLoc": "W720",
+ *       "type": "Pallet",
+ *       "qty": 0,
+ *       "owner": "RBAI",
+ *       "invoice": "NULL"
+ *         }
+ * @apiExample Example usage:
+ * curl -i http://localhost/api/strap/rfid/id/view?id= 1000000000000171
+ * @apiError NoDataFound The id of the Bin/Pallet was not found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Not Found
+ *     {
+ *        "err": "ID not found in PALLETS_T"
+ *     }
+ */
 function viewInfo(req, res) {
     let table;
     let idLabel;
@@ -145,12 +175,12 @@ function viewInfo(req, res) {
 
     var doSelect = function (conn, cb) {
 
-        if (req.query.id.charAt(0) === '0') {
+        if (req.query.id.charAt(8) === '0') {
             table = 'BINS_T';
             idLabel = 'BIN_ID';
             type = 'Bin';
         }
-        if (req.query.id.charAt(0) === '1') {
+        if (req.query.id.charAt(8) === '1') {
             table = 'PALLETS_T';
             idLabel = 'PALLET_ID';
             type = 'Pallet';

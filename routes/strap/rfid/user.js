@@ -15,7 +15,7 @@ router.get('/loc', function (req, res) {
 module.exports = router;
 
 /**
- * @api {put} /id/:id Get Part Group details of User
+ * @api {get} /id/:id Get Part Group details of User
  * @apiVersion 1.0.0
  * @apiName idPart
  * @apiGroup rfid
@@ -88,7 +88,7 @@ function idPart(req, res) {
 
 };
 /**
- * @api {put} /id/:id Get Part Group details of User
+ * @api {get} /id/:id Get Part Group details of User
  * @apiVersion 1.0.0
  * @apiName idPart
  * @apiGroup rfid

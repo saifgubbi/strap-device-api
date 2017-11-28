@@ -22,7 +22,7 @@ module.exports = router;
 
 
 /**
- * @api {put} /id/:id Post Transfer Damaged Bins
+ * @api {post} /id/:id Post Transfer Damaged Bins
  * @apiVersion 1.0.0
  * @apiName review/damaged
  * @apiGroup rfid
@@ -113,7 +113,7 @@ function insertEvents(req, res, sqlStatement, bindArr) {
             });
 }
 /**
- * @api {put} /id/:id Post Transfer Scrapped Bins
+ * @api {post} /id/:id Post Transfer Scrapped Bins
  * @apiVersion 1.0.0
  * @apiName review/scrap
  * @apiGroup rfid
@@ -142,7 +142,7 @@ function transScrap(req, res) {
 }
 
 /**
- * @api {put} /id/:id Post Transfer Scrapped Bins
+ * @api {post} /id/:id Post Transfer Scrapped Bins
  * @apiVersion 1.0.0
  * @apiName review/damagedSerial
  * @apiGroup rfid

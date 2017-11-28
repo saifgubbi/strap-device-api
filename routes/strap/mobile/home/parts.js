@@ -13,11 +13,19 @@ router.get('/', function (req, res) {
 module.exports = router;
 
 
-
+/**
+ * @api {get} /id/:id Get Parts Details
+ * @apiVersion 1.0.0
+ * @apiName getParts
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Parts Details location wise.
+ */
 function getParts(req, res) {
 
     var partGrp = req.query.partGrp;
-    var partArr =[];
+    var partArr = [];
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
@@ -41,7 +49,7 @@ function getParts(req, res) {
                                   and part_no is not null
                                   and ih.part_grp like '${partGrp}'
                                   ) group by loc`;
-  
+
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -53,16 +61,16 @@ function getParts(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                        let obj={};
-                    obj.parts=row.parts;
-                    obj.locType=row.locType;
-                    obj.qty=row.qty;
+            } else {
+                result.rows.forEach(function (row) {
+                    let obj = {};
+                    obj.parts = row.parts;
+                    obj.locType = row.locType;
+                    obj.qty = row.qty;
                     partArr.push(obj);
-                }); 
+                });
                 res.writeHead(200, {'Content-Type': 'application/json'});
-               res.end(JSON.stringify(partArr));
+                res.end(JSON.stringify(partArr));
                 cb(null, conn);
             }
 

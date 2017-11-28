@@ -17,7 +17,15 @@ router.get('/summary', function (req, res) {
 });
 
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Schedule
+ * @apiVersion 1.0.0
+ * @apiName getData
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Customer Schedule.
+ */
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var partNo ='';
@@ -136,7 +144,15 @@ function getData(req, res) {
                     conn.close();
             });
 }
-
+/**
+ * @api {get} /id/:id Get Schedule Summary
+ * @apiVersion 1.0.0
+ * @apiName getSummary
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Customer Schedule Summary.
+ */
 function getSummary(req, res) {
     var partGrp = req.query.partGrp;
     //var schArr = [];

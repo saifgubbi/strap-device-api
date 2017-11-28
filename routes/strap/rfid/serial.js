@@ -10,7 +10,7 @@ router.get('/', function (req, res) {
 
 module.exports = router;
 /**
- * @api {put} /id/:id Get Serial Details
+ * @api {get} /id/:id Get Serial Details
  * @apiVersion 1.0.0
  * @apiName serial
  * @apiGroup rfid

@@ -20,7 +20,7 @@ router.post('/picks', function (req, res) {
 module.exports = router;
 
 /**
- * @api {put} /id/:id Fetch Serialized Details
+ * @api {get} /id/:id Fetch Serialized Details
  * @apiVersion 1.0.0
  * @apiName picking/serialized
  * @apiGroup rfid
@@ -86,7 +86,7 @@ function serialInfo(req, res) {
 
 }
 /**
- * @api {put} /id/:id Post Non Serialized Picking
+ * @api {post} /id/:id Post Non Serialized Picking
  * @apiVersion 1.0.0
  * @apiName picking/nonSerialized
  * @apiGroup rfid
@@ -177,7 +177,7 @@ function insertEvents(req, res, sqlStatement, bindArr) {
             });
 }
 /**
- * @api {put} /id/:id Post Serialized Picking
+ * @api {post} /id/:id Post Serialized Picking
  * @apiVersion 1.0.0
  * @apiName picking/serialized
  * @apiGroup rfid

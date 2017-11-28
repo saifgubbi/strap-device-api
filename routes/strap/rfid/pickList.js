@@ -12,7 +12,7 @@ router.get('/list', function (req, res) {
 module.exports = router;
 
 /**
- * @api {put} /id/:id Get Picklist Details
+ * @api {get} /id/:id Get Picklist Details
  * @apiVersion 1.0.0
  * @apiName lr/receive
  * @apiGroup rfid

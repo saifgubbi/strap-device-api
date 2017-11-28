@@ -11,7 +11,15 @@ router.get('/', function (req, res) {
 });
 
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Parts details stock wise
+ * @apiVersion 1.0.0
+ * @apiName getparts
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the stock wise Parts Details.
+ */
 function getParts(req, res) {
     var partGrp = req.query.partGrp;
     var partNo = req.query.partNo;

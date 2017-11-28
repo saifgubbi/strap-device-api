@@ -10,7 +10,15 @@ router.get('/', function (req, res) {
 
 
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Bin/Pallet information
+ * @apiVersion 1.0.0
+ * @apiName idInfo
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Bin/Pallet information.
+ */
 function idInfo(req, res) {
     let table;
     let idLabel;
@@ -26,12 +34,12 @@ function idInfo(req, res) {
 
     var doSelect = function (conn, cb) {
 
-        if (req.query.id.charAt(0) === '0') {
+        if (req.query.id.charAt(8) === '0') {
             table = 'BINS_T';
             idLabel = 'BIN_ID';
             type = 'Bin';
         }
-        if (req.query.id.charAt(0) === '1') {
+        if (req.query.id.charAt(8) === '1') {
             table = 'PALLETS_T';
             idLabel = 'PALLET_ID';
             type = 'Pallet';
@@ -41,7 +49,7 @@ function idInfo(req, res) {
         } else {
 
             let sqlStatement = `SELECT * FROM ${table} WHERE ${idLabel}='${req.query.id}'`;
-            
+
             conn.execute(sqlStatement
                     , [], {
                 outFormat: oracledb.OBJECT

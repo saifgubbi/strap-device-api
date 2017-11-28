@@ -13,7 +13,7 @@ function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
 }
 /**
- * @api {put} /id/:id Post Bins/Pallets Receive
+ * @api {post} /id/:id Post Bins/Pallets Receive
  * @apiVersion 1.0.0
  * @apiName receive
  * @apiGroup rfid

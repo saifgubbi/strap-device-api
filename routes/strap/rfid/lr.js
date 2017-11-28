@@ -22,7 +22,7 @@ router.get('/old', function (req, res) {
 
 module.exports = router;
 /**
- * @api {put} /id/:id Get LR for Dispatch
+ * @api {get} /id/:id Get LR for Dispatch
  * @apiVersion 1.0.0
  * @apiName lr/dispatch
  * @apiGroup rfid
@@ -92,7 +92,7 @@ function getDipatchLR(req, res) {
 }
 
 /**
- * @api {put} /id/:id Get LR for Receive
+ * @api {get} /id/:id Get LR for Receive
  * @apiVersion 1.0.0
  * @apiName lr/receive
  * @apiGroup rfid
@@ -163,7 +163,7 @@ function getReceiveLR(req, res) {
 }
 
 /**
- * @api {put} /id/:id getLRDetailsOld
+ * @api {get} /id/:id getLRDetailsOld
  * @apiVersion 1.0.0
  * @apiName lr/details
  * @apiGroup rfid
@@ -235,7 +235,7 @@ function getLRDetailsOld(req, res) {
 }
 
 /**
- * @api {put} /id/:id Get LR Details
+ * @api {get} /id/:id Get LR Details
  * @apiVersion 1.0.0
  * @apiName lr/details
  * @apiGroup rfid

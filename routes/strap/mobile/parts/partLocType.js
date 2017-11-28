@@ -10,15 +10,21 @@ router.get('/', function (req, res) {
     getData(req, res);
 });
 
-
-
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Parts details location wise
+ * @apiVersion 1.0.0
+ * @apiName getData
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the location wise Parts Details.
+ */
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var partNo = req.query.partNo;
     var schArr = [];
-     
+
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
@@ -26,10 +32,10 @@ function getData(req, res) {
             cb(null, conn);
         });
     };
-    
+
     function getSchP(conn, cb) {
         console.log("Getting List");
-         let selectStatement = `SELECT part_no as "partNo"
+        let selectStatement = `SELECT part_no as "partNo"
                                FROM(
                                select b.part_no
                                  from bins_t b,LOCATIONS_T l 
@@ -55,11 +61,11 @@ function getData(req, res) {
                 //let objArr = [];
                 result.rows.forEach(function (row) {
                     let obj = {};
-                    obj.partNo=row.partNo;
-                    obj.plant=0;
-                    obj.transitWh=0;
-                    obj.warehouse=0;
-                    obj.transitCust=0;
+                    obj.partNo = row.partNo;
+                    obj.plant = 0;
+                    obj.transitWh = 0;
+                    obj.warehouse = 0;
+                    obj.transitCust = 0;
                     schArr.push(obj);
                 });
                 cb(null, conn);
@@ -67,7 +73,7 @@ function getData(req, res) {
         });
 
     }
-        function getSchP1(conn, cb) {
+    function getSchP1(conn, cb) {
         console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo",loc as "locType",sum(part_qty) as "partQty"
                                FROM(
@@ -100,24 +106,24 @@ function getData(req, res) {
                     schArr.forEach(function (sch) {
                         if (sch.partNo === row.partNo)
                         {
-                         sch[row.locType]=row.partQty;   
+                            sch[row.locType] = row.partQty;
                         }
                     });
-                                 
-                    
+
+
                 });
-                 res.writeHead(200, {'Content-Type': 'application/json'});
-                 res.end(JSON.stringify(schArr));
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(schArr));
                 cb(null, conn);
             }
         });
 
     }
-  
+
     async.waterfall(
             [doConnect,
-             getSchP
-             ,getSchP1
+                getSchP,
+                getSchP1
             ],
             function (err, conn) {
                 if (err) {

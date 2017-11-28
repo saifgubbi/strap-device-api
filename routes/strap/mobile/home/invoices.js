@@ -24,19 +24,27 @@ router.get('/warehouse', function (req, res) {
 
 
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Invoice Data
+ * @apiVersion 1.0.0
+ * @apiName getInvoice
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice Data location wise.
+ */
 function getInvoice(req, res) {
-    
+
     var partGrp = req.query.partGrp;
-    var invArr ={plant:{},wareHouse:{},transit:{}}
-        var doConnect = function (cb) {
+    var invArr = {plant: {}, wareHouse: {}, transit: {}}
+    var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
                 throw err;
             cb(null, conn);
         });
     };
-    
+
     function getPlant(conn, cb) {
 
         let selectStatement = `SELECT 'Plant' as "type", COUNT(invoice) as "invoice" ,count(part_no) as "partNo",sum(qty) as "qty"
@@ -50,7 +58,7 @@ function getInvoice(req, res) {
                                    AND part_no IS NOT NULL
                                    AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
-  
+
 
         let bindVars = [];
 
@@ -63,13 +71,13 @@ function getInvoice(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                    
-                    invArr.plant.type=row.type;
-                    invArr.plant.invoice=row.invoice;
-                    invArr.plant.partNo=row.partNo;
-                    invArr.plant.qty=row.qty;
+            } else {
+                result.rows.forEach(function (row) {
+
+                    invArr.plant.type = row.type;
+                    invArr.plant.invoice = row.invoice;
+                    invArr.plant.partNo = row.partNo;
+                    invArr.plant.qty = row.qty;
                 });
                 cb(null, conn);
 
@@ -91,7 +99,7 @@ function getInvoice(req, res) {
                                   AND part_no IS NOT NULL
                                   AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
-  
+
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -103,12 +111,12 @@ function getInvoice(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                    invArr.wareHouse.type=row.type;
-                    invArr.wareHouse.invoice=row.invoice;
-                    invArr.wareHouse.partNo=row.partNo;
-                    invArr.wareHouse.qty=row.qty;
+            } else {
+                result.rows.forEach(function (row) {
+                    invArr.wareHouse.type = row.type;
+                    invArr.wareHouse.invoice = row.invoice;
+                    invArr.wareHouse.partNo = row.partNo;
+                    invArr.wareHouse.qty = row.qty;
                 });
                 cb(null, conn);
 
@@ -130,7 +138,7 @@ function getInvoice(req, res) {
                                   AND part_no IS NOT NULL
                                   AND ih.part_grp='${partGrp}'
                                   GROUP BY part_no)`;
-  
+
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -142,16 +150,16 @@ function getInvoice(req, res) {
             if (err) {
                 console.log("Error Occured: ", err);
                 cb(err, conn);
-            } else {             
-                    result.rows.forEach(function (row) {
-                    invArr.transit.type=row.type;
-                    invArr.transit.invoice=row.invoice;
-                    invArr.transit.partNo=row.partNo;
-                    invArr.transit.qty=row.qty;
+            } else {
+                result.rows.forEach(function (row) {
+                    invArr.transit.type = row.type;
+                    invArr.transit.invoice = row.invoice;
+                    invArr.transit.partNo = row.partNo;
+                    invArr.transit.qty = row.qty;
                 });
-                 //console.log(partArr); 
+                //console.log(partArr); 
                 res.writeHead(200, {'Content-Type': 'application/json'});
-               res.end(JSON.stringify(invArr));
+                res.end(JSON.stringify(invArr));
                 cb(null, conn);
 
             }
@@ -159,7 +167,7 @@ function getInvoice(req, res) {
         });
 
     }
-    
+
     async.waterfall(
             [doConnect,
                 getPlant,
@@ -176,7 +184,15 @@ function getInvoice(req, res) {
                     conn.close();
             });
 }
-
+/**
+ * @api {get} /id/:id Get Invoice Data for Plant
+ * @apiVersion 1.0.0
+ * @apiName getPlant
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice Data at Plant.
+ */
 function getPlant(req, res) {
 
     var partGrp = req.query.partGrp;
@@ -194,6 +210,15 @@ function getPlant(req, res) {
     var bindVars = [];
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
+/**
+ * @api {get} /id/:id Get Invoice Data for In Transit
+ * @apiVersion 1.0.0
+ * @apiName getTransit
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice Data in Transit.
+ */
 function getTransit(req, res) {
 
     var partGrp = req.query.partGrp;
@@ -211,6 +236,16 @@ function getTransit(req, res) {
     var bindVars = [];
     op.singleSQL(sqlStatement, bindVars, req, res);
 }
+
+/**
+ * @api {get} /id/:id Get Invoice Data for wareHouse
+ * @apiVersion 1.0.0
+ * @apiName getWarehouse
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice Data in Warehouse.
+ */
 function getWarehouse(req, res) {
 
     var partGrp = req.query.partGrp;

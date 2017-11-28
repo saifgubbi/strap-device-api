@@ -43,11 +43,18 @@ var Storage = multer.diskStorage({
 
 });
 
-
 var upload = multer({
     storage: Storage
 }).single("file"); //Field name and max count
-
+/**
+ * @api {post} /id/:id Post Incident details
+ * @apiVersion 1.0.0
+ * @apiName createIncident
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to post the incident information.
+ */
 function createIncident(req, res) {
 
     let sqlStatement;
@@ -141,8 +148,15 @@ function createIncident(req, res) {
                     conn.close();
             });
 }
-
-         
+/**
+ * @api {post} /id/:id Post Incident Image
+ * @apiVersion 1.0.0
+ * @apiName updateImage
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to post the incident image .
+ */         
 function updateImage (req, res) {
     upload(req, res, function (err) {
         var incId = req.body.incId;
@@ -192,7 +206,15 @@ function updateImage (req, res) {
                 });
     });
 };
-
+/**
+ * @api {post} /id/:id Post Incident comments
+ * @apiVersion 1.0.0
+ * @apiName updateIncident
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to post the incident comments.
+ */ 
 function updateIncident(req, res) {
     var incId = req.body.incId;
     var sqlStatement;
@@ -240,13 +262,29 @@ function updateIncident(req, res) {
             });
 }
 ;
-
+/**
+ * @api {get} /id/:id Get Image 
+ * @apiVersion 1.0.0
+ * @apiName getImage
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the image.
+ */
 function getImage(req, res) {
     var storedMimeType = 'image/jpeg';
     res.setHeader('Content-Type', storedMimeType);
     fs.createReadStream(path.join('./images/', req.params.id).replace(/\.[^/.]+$/, "")).pipe(res)
 }
-
+/**
+ * @api {get} /id/:id Get Incident comments
+ * @apiVersion 1.0.0
+ * @apiName getIncident
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the incident comments.
+ */
 function getIncident(req, res) {
 
     var partGrp = req.query.partGrp;

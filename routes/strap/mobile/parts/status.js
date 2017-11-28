@@ -10,12 +10,16 @@ router.get('/data', function (req, res) {
     getData(req, res);
 });
 
-
-
-
-
 module.exports = router;
-
+/**
+ * @api {get} /id/:id Get Parts details status wise
+ * @apiVersion 1.0.0
+ * @apiName getData
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the status wise Parts Details.
+ */
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var partNo = req.query.partNo;
@@ -31,7 +35,7 @@ function getData(req, res) {
         locType = ` AND l.type='Warehouse' AND b.status not in ('Dispatched','Reached')`;
     }
     var schArr = [];
-     
+
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)
@@ -39,7 +43,7 @@ function getData(req, res) {
             cb(null, conn);
         });
     };
-    
+
     function getSchP(conn, cb) {
         let selectStatement = `SELECT part_no as "partNo",loc as "locType"
                                FROM(
@@ -54,7 +58,7 @@ function getData(req, res) {
                                   and b.part_grp like '${partGrp}'
                                   and b.part_no = '${partNo}' ${locType}
                                   ) group by loc,part_no`;
-  
+
         let bindVars = [];
 
         conn.execute(selectStatement
@@ -71,8 +75,8 @@ function getData(req, res) {
                 result.rows.forEach(function (row) {
                     let obj = {};
                     obj.partNo = row.partNo;
-                    obj.locType= row.locType;
-                    obj.status={};
+                    obj.locType = row.locType;
+                    obj.status = {};
                     schArr.push(obj);
                 });
                 cb(null, conn);
@@ -80,7 +84,7 @@ function getData(req, res) {
         });
 
     }
-        function getSchP1(conn, cb) {
+    function getSchP1(conn, cb) {
         let selectStatement = `SELECT part_no as "partNo",loc as "locType",status as "status" ,sum(part_qty) as "partQty"
                                FROM(
                                select b.part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
@@ -112,24 +116,24 @@ function getData(req, res) {
                         if (sch.locType === row.locType)
                         {
                             console.log(row);
-                         sch.status[row.status]=row.partQty;   
+                            sch.status[row.status] = row.partQty;
                         }
                     });
-                                 
-                    
+
+
                 });
-                 res.writeHead(200, {'Content-Type': 'application/json'});
-                 res.end(JSON.stringify(schArr));
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(schArr));
                 cb(null, conn);
             }
         });
 
     }
-  
+
     async.waterfall(
             [doConnect,
-             getSchP,
-             getSchP1
+                getSchP,
+                getSchP1
             ],
             function (err, conn) {
                 if (err) {

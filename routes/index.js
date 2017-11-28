@@ -4,9 +4,12 @@
  * and open the template in the editor.
  */
 
+// Serving static files from "public" folder
+
 var express = require('express');
 var router = express.Router();
 
+router.use(express.static('public'));
 router.use('/strap', require('./strap'));
 
 

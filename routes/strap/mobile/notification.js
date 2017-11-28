@@ -13,7 +13,15 @@ router.get('/', function (req, res) {
 
 module.exports = router;
 
-
+/**
+ * @api {get} /id/:id Get Notification
+ * @apiVersion 1.0.0
+ * @apiName getNotify
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Notification alerts.
+ */
 function getNotify(req, res) {
     
     var sqlStatement = ` select event_id as "eventId",event_type as "eventType",event_name as "eventName",event_date as "eventDt",

@@ -10,7 +10,15 @@ router.get('/', function (req, res) {
 
 module.exports = router;
 
-
+/**
+ * @api {get} /id/:id Get Invoice details Location wise
+ * @apiVersion 1.0.0
+ * @apiName getData
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice details location wise.
+ */
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var locType = '';

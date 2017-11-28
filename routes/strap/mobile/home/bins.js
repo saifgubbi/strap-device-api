@@ -15,9 +15,15 @@ router.get('/binsDet', function (req, res) {
 
 module.exports = router;
 
-
-
-
+/**
+ * @api {get} /id/:id Get Bin & Pallet Data
+ * @apiVersion 1.0.0
+ * @apiName getData
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the bin/pallet Data based on part group.
+ */
 function getData(req, res) {
 
     var partGrp = req.query.partGrp;
@@ -36,7 +42,7 @@ function getData(req, res) {
     function getBins(conn, cb) {
         console.log("Getting Header");
 
-        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",(select count(1) from BINS_T where OWNER='${owner}') as "total"
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",(select count(1) from BINS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
                                           FROM(
                                             SELECT case  WHEN l.TYPE='Plant' Then 'plant'
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
@@ -47,6 +53,7 @@ function getData(req, res) {
                                                     LOCATIONS_T l
                                               WHERE A.FROM_LOC=l.LOC_ID 
                                                 AND OWNER='${owner}'
+                                                AND PART_GRP='${partGrp}'
                                            GROUP BY l.TYPE,a.qty
                                              )group by loc_Type`;
 
@@ -78,7 +85,7 @@ function getData(req, res) {
         });
     }
     function getPallets(conn, cb) {
-        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",( select count(1) from PALLETS_T where OWNER='${owner}' ) as "total"
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",( select count(1) from PALLETS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
                                           FROM(
                                             SELECT case  WHEN l.TYPE='Plant' Then 'plant'
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
@@ -89,6 +96,7 @@ function getData(req, res) {
                                                     LOCATIONS_T l
                                               WHERE A.FROM_LOC=l.LOC_ID 
                                                 AND OWNER='${owner}'
+                                                AND PART_GRP='${partGrp}'
                                            GROUP BY l.TYPE,a.qty
                                              )group by loc_Type`;
 
@@ -138,7 +146,15 @@ function getData(req, res) {
             });
 }
 
-
+/**
+ * @api {get} /id/:id Get Bin & Pallet Details
+ * @apiVersion 1.0.0
+ * @apiName getBinsDet
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the bin/pallet details based on location.
+ */
 function getBinsDet(req, res) {
     var locId = req.query.locId;
     var status = req.query.status;

@@ -11,7 +11,7 @@ router.post('/', function (req, res) {
 module.exports = router;
 
 /**
- * @api {put} /id/:id Post Release Bins/Pallets
+ * @api {post} /id/:id Post Release Bins/Pallets
  * @apiVersion 1.0.0
  * @apiName release
  * @apiGroup rfid

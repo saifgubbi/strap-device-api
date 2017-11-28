@@ -14,12 +14,18 @@ router.get('/', function (req, res) {
 module.exports = router;
 
 
-
+/**
+ * @api {get} /id/:id Get Invoice History
+ * @apiVersion 1.0.0
+ * @apiName getInvHist
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice History.
+ */
 function getInvHist(req, res) {
-
     var partGrp = req.query.partGrp;
     var invId = req.query.invId;
-
     var doConnect = function (cb) {
         op.doConnectCB(function (err, conn) {
             if (err)

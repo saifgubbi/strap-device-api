@@ -3,17 +3,23 @@ var router = express.Router();
 var op = require('../../../oracleDBOps');
 //var moment = require('moment');
 var async = require('async');
-//var google =require('google');
+
 var oracledb = require('oracledb');
 
 router.get('/', function (req, res) {
     getGeoLoc(req, res);
 });
 
-
 module.exports = router;
-
-
+/**
+ * @api {get} /id/:id Get Invoice Geo Location
+ * @apiVersion 1.0.0
+ * @apiName getGeoLoc
+ * @apiGroup mobile
+ * @apiPermission none
+ *
+ * @apiDescription This function is used to get the Invoice geo location based on device.
+ */
 function getGeoLoc(req, res) {
     var request = require('request');
     var partGrp = req.query.partGrp;
@@ -66,7 +72,7 @@ function getGeoLoc(req, res) {
     }
 
 
-    function getCurrentLoc1(conn, cb) {
+    function getCurrentLoc(conn, cb) {
             console.log(geoRes.inv.deviceID);
        request('http://l.tigerjump.in/tjbosch/getDeviceLocation?key=15785072&deviceID=' + geoRes.inv.deviceID, function (err, response,result) {
             console.log(result);
@@ -83,32 +89,7 @@ function getGeoLoc(req, res) {
                 res.end(JSON.stringify(geoRes));
                 cb(null, conn);
             }
- //       console.log('error:', error); // Print the error if one occurred
- //       console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  //      console.log('body:', body); // Print the HTML for the Google homepage.
-        });
-    }
-    
-     function getCurrentLoc(conn, cb) {
-     console.log('geoRes.curr.deviceID');
-            var p1 = (geoRes.inv.srcLat, geoRes.inv.srcLang);
-            var p2 = (46.0438317, 9.75936230000002);
-       request('https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=40.6655101,-73.89188969999998&destinations=40.6905615%2C-73.9976592&key=AIzaSyA3P7PPCNhDvpgBwcmaLVZxPlnqoCVSd7M', function (err, response,result) {
-          // https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=40.6655101,-73.89188969999998&destinations=40.6905615%2C-73.9976592&key=AIzaSyA3P7PPCNhDvpgBwcmaLVZxPlnqoCVSd7M
-            console.log(result);
-            if (err) {
-                cb(err, conn);
-            } else {
-                console.log(result);
-                res.writeHead(200, {'Content-Type': 'application/json'});
-                try {
-                    geoRes.curr = JSON.parse(result);
-                } catch (err) {
-                    geoRes.curr = {};
-                }
-                res.end(JSON.stringify(geoRes));
-                cb(null, conn);
-            }
+
         });
     }
 

@@ -23,5 +23,8 @@
     "request": "^2.81.0"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "grunt-apidoc": "^0.11.0"
+  }
 }
