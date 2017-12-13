@@ -13,6 +13,7 @@ router.use('/incident', require('./incident'));
 router.use('/invList', require('./invList'));
 router.use('/invHist', require('./invHist'));
 router.use('/invMap', require('./invMap'));
+router.use('/loginUser', require('./loginUser'));
 router.use('/sched', require('./sched'));
 router.use('/notification', require('./notification'));
 router.use('/gps', require('./gps'));

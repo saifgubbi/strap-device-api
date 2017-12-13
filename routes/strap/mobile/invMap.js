@@ -10,7 +10,6 @@ router.get('/', function (req, res) {
     getGeoLoc(req, res);
 });
 
-
 module.exports = router;
 
 /**
@@ -38,11 +37,13 @@ function getGeoLoc(req, res) {
     };
 
     function getInvLoc(conn, cb) {
-        console.log("Getting List");
+        //console.log("Getting List");
 
         let selectStatement = `SELECT DEVICE_ID as "deviceID",
+                                      A.from_loc||'-'||B.TYPE as "srcLoc",
                                       B.LAT AS "srcLat",
                                       B.LON AS "srcLang",
+                                      A.to_loc||'-'||C.TYPE as "destLoc",
 	                              C.LAT AS "destLat",
                                       C.LON AS "destLang"
                                  FROM INV_HDR_T A,LOCATIONS_T B,LOCATIONS_T C 
@@ -77,8 +78,10 @@ function getGeoLoc(req, res) {
 
     function getCurrentLoc(conn, cb) {
        // console.log(geoRes.inv.deviceID);
+       if (geoRes.inv.deviceID)
+       {
         request('http://l.tigerjump.in/tjbosch/getDeviceLocation?key=15785072&deviceID=' + geoRes.inv.deviceID, function (err, response, result) {
-            console.log(result);
+            //console.log(result);
             if (err) {
                 cb(err, conn);
             } else {
@@ -95,39 +98,47 @@ function getGeoLoc(req, res) {
 
         });
     }
+    else
+    {
+        geoRes.dev = {};
+        cb(null, conn);
+    }
+    }
 
     function getCurrentLoc1(conn, cb) {
-
+      if (geoRes.dev.data)
+       {
         request('https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins='
                 + geoRes.dev.data.lastLat + ',' + geoRes.dev.data.lastLang +
                 '&destinations=' + geoRes.inv.destLat + ',' + geoRes.inv.destLang + '\
               &key=AIzaSyA3P7PPCNhDvpgBwcmaLVZxPlnqoCVSd7M', function (err, response, result) {
 
-                    console.log(result);
+                    //console.log(result);
                     if (err) {
                         cb(err, conn);
                     } else {
-                        // console.log(result);
-                        //res.writeHead(200, {'Content-Type': 'application/json'});
                         try {
                             geoRes.cur  = JSON.parse(result); 
-                            //mapArr=result;
-                            //res.writeHead(200, {'Content-Type': 'application/json'});
                             res.end(JSON.stringify(geoRes));
                             cb(null, conn);
                         } catch (err) {
                             console.log(err);
                             geoRes.cur = {};
-                           // res.writeHead(200, {'Content-Type': 'application/json'});
                             res.end(JSON.stringify(geoRes));
                             cb(null, conn);
                         }
-//                        res.end(JSON.stringify(mapArr));
-//                        cb(null, conn);
                     }
                 });
+            }
+            else
+       {
+            geoRes.cur = {};
+           res.end(JSON.stringify(geoRes));
+           cb(null, conn);
+ 
     }
-
+    }
+   
     async.waterfall(
             [doConnect,
                 getInvLoc,

@@ -34,7 +34,6 @@ function getData(req, res) {
     };
 
     function getSchP(conn, cb) {
-        console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo"
                                FROM(
                                select b.part_no
@@ -44,7 +43,7 @@ function getData(req, res) {
                                   and b.part_grp like '${partGrp}'
                                   and b.part_no = '${partNo}'
                                   ) group by part_no`;
-        console.log(selectStatement);
+       // console.log(selectStatement);
 
         let bindVars = [];
 
@@ -74,7 +73,7 @@ function getData(req, res) {
 
     }
     function getSchP1(conn, cb) {
-        console.log("Getting List");
+        //console.log("Getting List");
         let selectStatement = `SELECT part_no as "partNo",loc as "locType",sum(part_qty) as "partQty"
                                FROM(
                                select part_no,case  WHEN l.TYPE='Plant' AND b.STATUS NOT IN ('Dispatched','Reached') Then 'plant'
@@ -88,7 +87,7 @@ function getData(req, res) {
                                   and b.part_grp like '${partGrp}'
                                   and b.part_no = '${partNo}'
                                   ) group by loc,part_no`;
-        console.log(selectStatement);
+        //console.log(selectStatement);
 
         let bindVars = [];
 

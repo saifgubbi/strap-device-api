@@ -3,6 +3,7 @@ var router = express.Router();
 var op = require('../../../oracleDBOps');
 var async = require('async');
 var oracledb = require('oracledb');
+var moment = require('moment');
 
 router.get('/', function (req, res) {
     getData(req, res);
@@ -22,19 +23,37 @@ module.exports = router;
 function getData(req, res) {
     var partGrp = req.query.partGrp;
     var locType = '';
-
+    var status ='';
+    var invDt='';
+   // var invDtTo='';
+    var invId='';
+    
+    if (req.query.status === 'Open') {
+        status = ` AND ih.status <> l.close_status`;
+    }
+    if (req.query.status === 'Closed') {
+        status = ` AND ih.status = l.close_status`;
+    }
+    
     if (req.query.locType === 'Plant') {
         locType = ` AND l.type='Plant' AND ih.status not in ('Dispatched','Reached')`;
     }
-    if (req.query.locType === 'Transit-Wh') {
-        locType = ` AND( l.type = ('Plant') AND ih.status in ('Dispatched')) OR (l.type = ('Warehouse') AND ih.status in ('Dispatched'))`;
+    if (req.query.locType === 'Transit') {
+        locType = `  AND( l.type IN ('Plant') AND ih.status in ('Dispatched','Reached') OR l.type IN ('Warehouse') AND ih.status in ('Dispatched'))`;
     }
-    if (req.query.locType === 'Transit-Cust') {
-        locType = ` AND l.type IN ('Warehouse') AND ih.status in ('Dispatched','Reached')`;
-    }
+    
     if (req.query.locType === 'Warehouse') {
         locType = ` AND l.type='Warehouse' AND ih.status not in ('Dispatched','Reached')`;
     }
+    
+    if (req.query.invDtFrom && req.query.invDtTo) {
+        invDt = `AND IH.INV_DT BETWEEN '${moment(req.query.invDtFrom).format("DD-MMM-YYYY")}' AND '${moment(req.query.invDtTo).format("DD-MMM-YYYY")}'`;
+    }
+    
+    if (req.query.invId) {
+        invId = ` AND ih.invoice_num LIKE '${req.query.invId}%'`;
+    }
+    
     var statArr = [];
     var invArr = [];
     var doConnect = function (cb) {
@@ -46,16 +65,20 @@ function getData(req, res) {
     };
     
      function getInvoice(conn, cb) {
-        let selectStatement = `SELECT ih.invoice_num as "invId",ih.inv_dt as "invDt",part_no as "partNo",sum(qty) as "qty",status as "status"
+        let selectStatement = `SELECT ih.invoice_num as "invId",
+                                      ih.inv_dt as "invDt",
+                                      part_no as "partNo",
+                                      sum(qty) as "qty",
+                                      DECODE('${req.query.locType}','Transit',status||'-'||l.type,status) as "status"
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                  WHERE ih.invoice_num=il.invoice_num
                                    AND ih.from_loc=l.loc_id
                                    AND part_no IS NOT NULL
-                                   AND ih.part_grp='${partGrp}'${locType}
-                                  GROUP BY ih.invoice_num,ih.inv_dt,part_no,status`;
+                                   AND ih.part_grp='${partGrp}'${locType} ${status} ${invDt} ${invId}
+                                  GROUP BY ih.invoice_num,ih.inv_dt,part_no,status,l.type`;
        
         let bindVars = [];
-        
+       // console.log(selectStatement);
         conn.execute(selectStatement
                 , bindVars, {
                     outFormat: oracledb.OBJECT, // Return the result as Object
@@ -81,16 +104,17 @@ function getData(req, res) {
     };
 
     function getStatus(conn, cb) {
-        let selectStatement = `SELECT  count(1) as "count",status as "status"
+        let selectStatement = `SELECT  count(1) as "count",
+                                       DECODE('${req.query.locType}','Transit',status||'-'||l.type,status) as "status"
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                  WHERE ih.invoice_num=il.invoice_num
                                    AND ih.from_loc=l.loc_id
                                    AND part_no IS NOT NULL
-                                   AND ih.part_grp='${partGrp}'${locType}
-                                  GROUP BY status`;
+                                   AND ih.part_grp='${partGrp}'${locType} ${status} ${invDt} ${invId}
+                                  GROUP BY status,l.type`;
        
         let bindVars = [];
-
+        //console.log(selectStatement);
         conn.execute(selectStatement
                 , bindVars, {
                     outFormat: oracledb.OBJECT, // Return the result as Object

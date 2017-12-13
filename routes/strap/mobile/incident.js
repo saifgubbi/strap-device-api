@@ -89,7 +89,7 @@ function createIncident(req, res) {
                 cb(err, conn);
             } else {
                 result.rows.forEach(function (row) {
-                    console.log(row);
+                    //console.log(row);
                     var inArr = {incId: row[0] + 1};
                     incArr.push(inArr);
                     let binVars = [row[0] + 1, id, new Date(), ts, problem, category, imgName, priority, partGrp, locId, userId, 'New', type];
@@ -101,9 +101,9 @@ function createIncident(req, res) {
     };
 
     function doInsert(conn, cb) {
-        console.log("In  doInsert");
+        //console.log("In  doInsert");
         async.eachSeries(bindArr, function (data, callback) {
-            console.log("Inserting :", JSON.stringify(data));
+            //console.log("Inserting :", JSON.stringify(data));
             let insertStatement = sqlStatement;
             let bindVars = data;
             conn.execute(insertStatement
@@ -318,7 +318,7 @@ function getIncident(req, res) {
                              ORDER BY EVENT_TS DESC`;
 
         let bindVars = [];
-        console.log(selectStatement);
+        //console.log(selectStatement);
         conn.execute(selectStatement
                 , bindVars, {
                     outFormat: oracledb.OBJECT, // Return the result as Object

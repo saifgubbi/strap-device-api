@@ -40,24 +40,23 @@ function getData(req, res) {
     };
 
     function getBins(conn, cb) {
-        console.log("Getting Header");
 
-        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",(select count(1) from BINS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",SUM(loc_Count) as "locCount",(select count(1) from BINS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
                                           FROM(
                                             SELECT case  WHEN l.TYPE='Plant' Then 'plant'
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
                                                          WHEN l.TYPE='Customer' Then 'customer'
                                                     end as loc_Type,
-                                                    DECODE(a.qty,0,COUNT(*),0) free_Count
+                                                    DECODE(l.type,'Customer',count(1),DECODE(a.status,'Ready',COUNT(*),0)) free_Count,
+                                                    count(1) loc_Count
                                                FROM BINS_T A ,
-                                                    LOCATIONS_T l
+                                                    LOCATIONS_T l                                                
                                               WHERE A.FROM_LOC=l.LOC_ID 
                                                 AND OWNER='${owner}'
                                                 AND PART_GRP='${partGrp}'
-                                           GROUP BY l.TYPE,a.qty
+                                           GROUP BY l.TYPE,a.status
                                              )group by loc_Type`;
 
-        console.log(selectStatement);
 
         let bindVars = [];
 
@@ -72,32 +71,34 @@ function getData(req, res) {
                 cb(err, conn);
             } else {
                 result.rows.forEach(function (row) {
-                    console.log(row);
+                    //console.log(row);
                     let obj = {};
                     obj.locType = row.locType;
                     obj.freeCount = row.freeCount || 0;
+                    obj.locCount = row.locCount || 0;
                     obj.total = row.total || 0;
                     binArr.bins.push(obj);
                 });
-                console.log(binArr);
+                //console.log(binArr);
                 cb(null, conn);
             }
         });
     }
     function getPallets(conn, cb) {
-        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",( select count(1) from PALLETS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
+        let selectStatement = `SELECT loc_Type as "locType",sum(free_Count) as "freeCount",SUM(loc_Count) as "locCount",(select count(1) from PALLETS_T where OWNER='${owner}' AND PART_GRP='${partGrp}') as "total"
                                           FROM(
                                             SELECT case  WHEN l.TYPE='Plant' Then 'plant'
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
                                                          WHEN l.TYPE='Customer' Then 'customer'
                                                     end as loc_Type,
-                                                    DECODE(a.qty,0,COUNT(*),0) free_Count                                                    
+                                                    DECODE(l.type,'Customer',count(1),DECODE(a.status,'Ready',COUNT(*),0)) free_Count,
+                                                    count(1) loc_Count
                                                FROM PALLETS_T A ,
-                                                    LOCATIONS_T l
+                                                    LOCATIONS_T l                                                
                                               WHERE A.FROM_LOC=l.LOC_ID 
                                                 AND OWNER='${owner}'
                                                 AND PART_GRP='${partGrp}'
-                                           GROUP BY l.TYPE,a.qty
+                                           GROUP BY l.TYPE,a.status
                                              )group by loc_Type`;
 
         let bindVars = [];
@@ -116,6 +117,7 @@ function getData(req, res) {
                     let obj = {};
                     obj.locType = row.locType;
                     obj.freeCount = row.freeCount || 0;
+                    obj.locCount = row.locCount || 0;
                     obj.total = row.total || 0;
                     binArr.pallets.push(obj);
                 });

@@ -115,7 +115,7 @@ function getData(req, res) {
                     schArr.forEach(function (sch) {
                         if (sch.locType === row.locType)
                         {
-                            console.log(row);
+                            //console.log(row);
                             sch.status[row.status] = row.partQty;
                         }
                     });

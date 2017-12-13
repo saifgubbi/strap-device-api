@@ -45,14 +45,14 @@ function getData(req, res) {
     };
     
     function getSchP(conn, cb) {
-        console.log("Getting List");
+        //console.log("Getting List");
         let selectStatement = `SELECT PART_NO as "partNo", sum(wip_qty) as "wipQty", sum(close_stk) as "closeStk" 
                                   FROM sched_t p 
                                  WHERE part_grp='${partGrp}'${partNo} 
                                    AND trunc(sched_dt) between trunc(sysdate) and trunc(sysdate+3) 
 	                           AND part_no is not null   
                                    GROUP BY part_no`;
-        console.log(selectStatement);
+        //console.log(selectStatement);
 
         let bindVars = [];
 
@@ -85,7 +85,7 @@ function getData(req, res) {
     }
 
     function getSchP1(conn, cb) {
-        console.log("Getting List");
+        //console.log("Getting List");
         let selectStatement = `SELECT trunc(sched_dt)-trunc(sysdate) as "day", part_no as "partNo",sum(qty) as "qty"
                                   FROM sched_t p 
                                  WHERE part_grp='${partGrp}' ${partNo}
@@ -93,7 +93,7 @@ function getData(req, res) {
 	                           AND part_no is not null 
                              group by sched_dt,part_no
                              order by sched_dt desc`;
-        console.log(selectStatement);
+        //console.log(selectStatement);
 
         let bindVars = [];
 
