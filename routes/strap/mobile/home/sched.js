@@ -22,11 +22,15 @@ module.exports = router;
  */
 function getSched(req, res) {
     var partGrp = req.query.partGrp;
-    let selectStatement = `select count(part_no) as "variant", sum(qty) as "qty" 
+    let selectStatement = `SELECT count(variant) as "variant",sum(qty) as "qty"
+                           from(
+                                           select count(part_no) as variant, sum(qty) as qty 
                                              from sched_t 
                                             where part_grp LIKE '${partGrp}' 
                                               and trunc(sched_dt)=trunc(sysdate) 
-                                              and part_no is not null`;
+                                              and part_no is not null
+                                              group by part_no);
+`;
 
 
     var bindVars = [];

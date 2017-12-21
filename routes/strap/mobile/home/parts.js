@@ -36,19 +36,48 @@ function getParts(req, res) {
 
     function getHdr(conn, cb) {
 
-        let selectStatement = `SELECT count(1) as "parts",loc as "locType",sum(part_qty) as "qty"
-                               FROM(
-                               select distinct part_no,case  WHEN l.TYPE='Plant' AND ih.STATUS NOT IN ('Dispatched','Reached') Then 'Plant'
-                                                             WHEN l.TYPE='Plant' AND ih.STATUS IN ('Dispatched','Reached') Then 'Transit'
-                                                             WHEN l.TYPE='Warehouse' AND ih.STATUS NOT IN ('Dispatched','Reached') Then 'Warehouse'
-                                                             WHEN l.TYPE='Warehouse' AND ih.STATUS IN ('Dispatched','Reached') Then 'Transit' 
-                                                         end loc,il.qty part_qty
-                                 from inv_line_t il,inv_hdr_t ih,LOCATIONS_T l 
-                                where ih.invoice_num=il.invoice_num 
-                                  AND ih.from_loc=l.loc_id 
-                                  and part_no is not null
-                                  and ih.part_grp like '${partGrp}'
-                                  ) group by loc`;
+        let selectStatement = `WITH Plant AS
+                            (
+                            SELECT 'Plant' plant_type, count(part_no) plant_part_no,NVL(sum(qty),0) plant_qty
+                              FROM
+                                (SELECT b.part_no, sum(qty) qty
+                                   from bins_t b,LOCATIONS_T l 
+                                  where b.from_loc=l.loc_id 
+                                    and b.part_no is not null
+                                    AND l.type='Plant'
+                                    and b.status NOT IN ('New','Dispatched','Reached')
+                                    AND b.status <>l.close_status
+                                    and b.part_grp like '${partGrp}'
+                                    and b.qty <>0
+                                    group by part_no)),
+                             Transit AS(
+                             SELECT 'Transit' trasit_type, count(part_no) transit_part_no,NVL(sum(qty),0) transit_qty
+                               FROM
+                                  (SELECT b.part_no, sum(qty) qty
+                                     from bins_t b,LOCATIONS_T l 
+                                    where b.from_loc=l.loc_id 
+                                      and b.part_no is not null
+                                      AND l.type IN ('Plant','Warehouse')
+                                      and b.status IN ('Dispatched','Reached')
+                                      AND b.status <>l.close_status
+                                      and b.part_grp like '${partGrp}'
+                                      and b.qty <>0
+                                     group by part_no)),
+                             Warehouse AS (
+                             SELECT 'Warehouse' wh_type, count(part_no) wh_part_no,NVL(sum(qty),0) wh_qty
+                               FROM
+                                  (SELECT b.part_no, sum(qty) qty
+                                     from bins_t b,LOCATIONS_T l 
+                                    where b.from_loc=l.loc_id 
+                                      and b.part_no is not null
+                                      AND l.type='Warehouse'
+                                      and b.status NOT IN ('New','Dispatched','Reached')
+                                      AND b.status <>l.close_status
+                                      and b.part_grp like '${partGrp}'
+                                      and b.qty <>0
+                                  group by part_no))                                 
+                         select * from plant,transit,warehouse
+`;
 
         let bindVars = [];
 
@@ -64,9 +93,15 @@ function getParts(req, res) {
             } else {
                 result.rows.forEach(function (row) {
                     let obj = {};
-                    obj.parts = row.parts;
-                    obj.locType = row.locType;
-                    obj.qty = row.qty;
+                    obj.plantType = row.PLANT_TYPE;
+                    obj.plantParts = row.PLANT_PART_NO;
+                    obj.plantQty = row.PLANT_QTY;
+                    obj.transitType = row.TRANSIT_TYPE;
+                    obj.tranistParts = row.TRANSIT_PART_NO;
+                    obj.transitQty = row.TRANSIT_QTY;
+                    obj.whType = row.WH_TYPE;
+                    obj.whParts = row.WH_PART_NO;
+                    obj.whQty = row.WH_QTY;
                     partArr.push(obj);
                 });
                 res.writeHead(200, {'Content-Type': 'application/json'});

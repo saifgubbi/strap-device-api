@@ -41,7 +41,7 @@ function getNotify(req, res) {
         eventId = ` AND e.event_id LIKE '${req.query.eventId}%' `;
     }
     
-    var sqlStatement = `SELECT event_date,event_type,event_name,event_id,description, loc , event_ts,Priority
+    var sqlStatement = `SELECT event_date,event_type,event_name,event_id,description,  event_ts,Priority
                          FROM(
                               SELECT event_date,event_type,event_name,event_id,comments description , event_ts,Priority
                        FROM(
@@ -51,7 +51,6 @@ function getNotify(req, res) {
                           and event_name in ('Notification')
                           and from_loc =g.map_val
                           and g.type='LOC_ID' 
-                         AND event_date between sysdate-3 and sysdate
                          AND part_grp='${partGrp}' ${eventId}
                         UNION                         
                        select event_date,event_type,event_name,event_id,'LR No :'||e.LR_NO comments , e.event_ts,DECODE(e.event_name,'Reached','High','Dispatched','Medium') Priority
@@ -59,7 +58,6 @@ function getNotify(req, res) {
                         where event_type IN ('Invoice')
                           and event_name in ('Reached','Dispatched')
                           and from_loc =l.loc_id 
-                          AND event_date between sysdate-3 and sysdate
                           AND part_grp='${partGrp}' ${eventId}
                           )
                           order by event_ts desc)

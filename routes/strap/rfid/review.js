@@ -17,6 +17,9 @@ router.post('/damagedSerial', function (req, res) {
     transDamagedSer(req, res);
 });
 
+router.get('/reason', function (req, res) {
+    getReason(req, res);
+});
 
 module.exports = router;
 
@@ -177,4 +180,67 @@ function transDamagedSer(req, res) {
         ;
     });
     insertEvents(req, res, sqlStatement, bindArr);
+}
+
+function getReason(req, res) {
+    let type =req.query.type;
+    let partGrp =req.query.partGrp;
+
+    var doconnect = function (cb) {
+        op.doConnectCB(cb);
+    };
+
+    var dorelease = function (conn) {
+        conn.close();
+    };
+
+    var doSelect = function (conn, cb) {
+         let sqlStatement = `SELECT REASON_CODE,REASON FROM REASONS_T WHERE REASON_TYPE='${type}' AND PART_GRP='${partGrp}'`;
+            console.log(sqlStatement);
+            conn.execute(sqlStatement
+                    , [], {
+                outFormat: oracledb.OBJECT
+            }, function (err, result)
+            {
+                if (err) {
+                    cb(err, conn);
+                } else {
+                    if (result.rows.length === 0) {
+                        res.status(401).send({'err': 'No Active Reasons Found for Reason Type'});//Added for response set
+                        cb(null, conn);
+                    } else {
+                        let idDet = {};
+                        result.rows.forEach(function (row) {
+                            idDet.reasonCode = row.REASON_CODE;
+                            idDet.reason = row.REASON;
+                        });
+                        res.writeHead(200, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify(idDet).replace(null, '"NULL"'));
+                        cb(null, conn);
+                    }
+                }
+            });
+    };
+
+    async.waterfall(
+            [
+                doconnect,
+                doSelect
+            ],
+            function (err, conn) {
+                if (err) {
+                    console.error("In waterfall error cb: ==>", err, "<==");
+                    res.writeHead(400, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify(err));
+                    if (conn)
+                    {
+                        dorelease(conn);
+                    }
+                }
+                if (conn)
+                {
+                    dorelease(conn);
+                }
+            });
+
 }
