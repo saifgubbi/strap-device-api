@@ -47,7 +47,7 @@ function getInvoice(req, res) {
 
     function getPlant(conn, cb) {
 
-        let selectStatement = `SELECT 'Plant' as "type", COUNT(invoice) as "invoice" ,count(part_no) as "partNo",sum(qty) as "qty"
+        let selectStatement = `SELECT 'Plant' as "type", COUNT(invoice) as "invoice" ,count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
 				SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -88,7 +88,7 @@ function getInvoice(req, res) {
     }
     function getWarehouse(conn, cb) {
 
-        let selectStatement = ` SELECT 'Warehouse' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",sum(qty) as "qty"
+        let selectStatement = ` SELECT 'Warehouse' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
                                SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                  FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -127,7 +127,7 @@ function getInvoice(req, res) {
     }
     function getTransit(conn, cb) {
 
-        let selectStatement = `SELECT 'Transit' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",sum(qty) as "qty"
+        let selectStatement = `SELECT 'Transit' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
                                SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                  FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -196,7 +196,7 @@ function getInvoice(req, res) {
 function getPlant(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice) ,count(part_no),sum(qty) qty
+    var sqlStatement = `SELECT COUNT(invoice) ,count(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -222,7 +222,7 @@ function getPlant(req, res) {
 function getTransit(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice),count(part_no),sum(qty) qty
+    var sqlStatement = `SELECT COUNT(invoice),count(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -249,7 +249,7 @@ function getTransit(req, res) {
 function getWarehouse(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice),count(part_no),sum(qty) qty
+    var sqlStatement = `SELECT COUNT(invoice),count(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L

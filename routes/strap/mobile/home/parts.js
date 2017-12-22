@@ -93,13 +93,13 @@ function getParts(req, res) {
             } else {
                 result.rows.forEach(function (row) {
                     let obj = {};
-                    obj.plantType = row.PLANT_TYPE;
+                   // obj.plantType = row.PLANT_TYPE;
                     obj.plantParts = row.PLANT_PART_NO;
                     obj.plantQty = row.PLANT_QTY;
-                    obj.transitType = row.TRANSIT_TYPE;
+                   // obj.transitType = row.TRANSIT_TYPE;
                     obj.tranistParts = row.TRANSIT_PART_NO;
                     obj.transitQty = row.TRANSIT_QTY;
-                    obj.whType = row.WH_TYPE;
+                    //obj.whType = row.WH_TYPE;
                     obj.whParts = row.WH_PART_NO;
                     obj.whQty = row.WH_QTY;
                     partArr.push(obj);

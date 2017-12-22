@@ -47,14 +47,14 @@ function getData(req, res) {
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
                                                          WHEN l.TYPE='Customer' Then 'customer'
                                                     end as loc_Type,
-                                                    DECODE(l.type,'Customer',count(1),DECODE(a.status,'Ready',COUNT(*),0)) free_Count,
+                                                    DECODE(a.qty,0,COUNT(*),0)) free_Count,
                                                     count(1) loc_Count
                                                FROM BINS_T A ,
                                                     LOCATIONS_T l                                                
                                               WHERE A.FROM_LOC=l.LOC_ID 
                                                 AND OWNER='${owner}'
                                                 AND PART_GRP='${partGrp}'
-                                           GROUP BY l.TYPE,a.status
+                                           GROUP BY l.TYPE,a.qty
                                              )group by loc_Type`;
 
 
