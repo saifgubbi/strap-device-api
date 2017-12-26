@@ -195,7 +195,7 @@ function getReason(req, res) {
     };
 
     var doSelect = function (conn, cb) {
-         let sqlStatement = `SELECT REASON_CODE,REASON FROM REASONS_T WHERE REASON_TYPE='${type}' AND PART_GRP='${partGrp}'`;
+         let sqlStatement = `SELECT REASON_CODE as "reasonCode",REASON as "reason" FROM REASONS_T WHERE REASON_TYPE='${type}' AND PART_GRP='${partGrp}'`;
             console.log(sqlStatement);
             conn.execute(sqlStatement
                     , [], {
@@ -209,11 +209,11 @@ function getReason(req, res) {
                         res.status(401).send({'err': 'No Active Reasons Found for Reason Type'});//Added for response set
                         cb(null, conn);
                     } else {
-                        let idDet = {};
-                        result.rows.forEach(function (row) {
-                            idDet.reasonCode = row.REASON_CODE;
-                            idDet.reason = row.REASON;
-                        });
+                        let idDet = result.rows;
+//                        result.rows.forEach(function (row) {
+//                            idDet.reasonCode = row.REASON_CODE;
+//                            idDet.reason = row.REASON;
+//                        });
                         res.writeHead(200, {'Content-Type': 'application/json'});
                         res.end(JSON.stringify(idDet).replace(null, '"NULL"'));
                         cb(null, conn);
