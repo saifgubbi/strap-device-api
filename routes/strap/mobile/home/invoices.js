@@ -47,13 +47,14 @@ function getInvoice(req, res) {
 
     function getPlant(conn, cb) {
 
-        let selectStatement = `SELECT 'Plant' as "type", COUNT(invoice) as "invoice" ,count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
+        let selectStatement = `SELECT 'Plant' as "type", NVL(SUM(invoice),0) as "invoice" ,count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
 				SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                   FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                  WHERE ih.invoice_num=il.invoice_num
                                    AND ih.from_loc=l.loc_id
                                    AND l.type='Plant'
+                                   AND ih.status<>l.close_status
                                    AND ih.status not in ('Dispatched','Reached')
                                    AND part_no IS NOT NULL
                                    AND ih.part_grp='${partGrp}'
@@ -88,13 +89,14 @@ function getInvoice(req, res) {
     }
     function getWarehouse(conn, cb) {
 
-        let selectStatement = ` SELECT 'Warehouse' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
+        let selectStatement = ` SELECT 'Warehouse' as "type", NVL(SUM(invoice),0) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
                                SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                  FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                 WHERE ih.invoice_num=il.invoice_num
                                   AND ih.from_loc=l.loc_id
                                   AND l.type='Warehouse'
+                                   AND ih.status<>l.close_status
                                   AND ih.status not in ('Dispatched','Reached')
                                   AND part_no IS NOT NULL
                                   AND ih.part_grp='${partGrp}'
@@ -127,13 +129,14 @@ function getInvoice(req, res) {
     }
     function getTransit(conn, cb) {
 
-        let selectStatement = `SELECT 'Transit' as "type", COUNT(invoice) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
+        let selectStatement = `SELECT 'Transit' as "type", NVL(SUM(invoice),0) as "invoice",count(part_no) as "partNo",NVL(sum(qty),0) as "qty"
                                FROM(
                                SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                  FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                                 WHERE ih.invoice_num=il.invoice_num
                                   AND ih.from_loc=l.loc_id
                                   AND l.type IN ('Plant','Warehouse')
+                                   AND ih.status<>l.close_status
                                   AND ih.status in ('Dispatched','Reached')
                                   AND part_no IS NOT NULL
                                   AND ih.part_grp='${partGrp}'
@@ -196,7 +199,7 @@ function getInvoice(req, res) {
 function getPlant(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice) ,count(part_no),NVL(sum(qty),0) qty
+    var sqlStatement = `SELECT SUM(invoice) ,COUNT(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -204,6 +207,7 @@ function getPlant(req, res) {
                                 and ih.from_loc=l.loc_id
                                 and l.type='Plant'
                                 and ih.status<>'Dispatched'
+                                AND ih.status<>l.close_status
                                 and part_no IS NOT NULL
                                 AND ih.part_grp='${partGrp}'
                                 GROUP BY part_no)`;
@@ -222,13 +226,14 @@ function getPlant(req, res) {
 function getTransit(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice),count(part_no),NVL(sum(qty),0) qty
+    var sqlStatement = `SELECT SUM(invoice),count(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
                               WHERE ih.invoice_num=il.invoice_num
                                 and ih.from_loc=l.loc_id
                                 and l.type in ('Plant','Warehouse')
+                                AND ih.status<>l.close_status
                                 and ih.status in ('Dispatched','Reached')
                                 and part_no IS NOT NULL
                                 AND ih.part_grp='${partGrp}'
@@ -249,7 +254,7 @@ function getTransit(req, res) {
 function getWarehouse(req, res) {
 
     var partGrp = req.query.partGrp;
-    var sqlStatement = `SELECT COUNT(invoice),count(part_no),NVL(sum(qty),0) qty
+    var sqlStatement = `SELECT SUM(invoice),count(part_no),NVL(sum(qty),0) qty
                         FROM(
                              SELECT count(ih.invoice_num) invoice,part_no,sum(qty) qty
                                FROM INV_HDR_T IH,INV_LINE_T IL,LOCATIONS_T L
@@ -257,6 +262,7 @@ function getWarehouse(req, res) {
                                 and ih.from_loc=l.loc_id
                                 and l.type='Warehouse'
                                 and ih.status<>'Dispatched'
+                                AND ih.status<>l.close_status
                                 and part_no IS NOT NULL
                                 AND ih.part_grp='${partGrp}'
                                 GROUP BY part_no)`;

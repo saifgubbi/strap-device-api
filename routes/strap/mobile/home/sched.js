@@ -1,10 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var op = require('../../../../oracleDBOps');
-var moment = require('moment');
-var async = require('async');
 
-var oracledb = require('oracledb');
 //oracledb.prefetchRows = 100;
 router.get('/', function (req, res) {
     getSched(req, res);
@@ -29,8 +26,7 @@ function getSched(req, res) {
                                             where part_grp LIKE '${partGrp}' 
                                               and trunc(sched_dt)=trunc(sysdate) 
                                               and part_no is not null
-                                              group by part_no);
-`;
+                                              group by part_no)`;
 
 
     var bindVars = [];

@@ -47,7 +47,7 @@ function getData(req, res) {
                                                          WHEN l.TYPE='Warehouse' Then 'warehouse'        
                                                          WHEN l.TYPE='Customer' Then 'customer'
                                                     end as loc_Type,
-                                                    DECODE(a.qty,0,COUNT(*),0)) free_Count,
+                                                    DECODE(a.qty,0,COUNT(*),0) free_Count,
                                                     count(1) loc_Count
                                                FROM BINS_T A ,
                                                     LOCATIONS_T l                                                
